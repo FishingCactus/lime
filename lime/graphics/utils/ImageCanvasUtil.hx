@@ -50,7 +50,8 @@ class ImageCanvasUtil {
 			
 			createCanvas (image, buffer.width, buffer.height);
 			createImageData (image);
-			
+			buffer.__srcContext.putImageData (buffer.__srcImageData, 0, 0);
+
 		} else if (buffer.data == null && buffer.__srcImageData != null) {
 			
 			buffer.data = cast buffer.__srcImageData.data;
@@ -175,9 +176,9 @@ class ImageCanvasUtil {
 		if (buffer.__srcImageData == null) {
 			
 			if (buffer.data == null) {
-				
-				buffer.__srcImageData = buffer.__srcContext.getImageData (0, 0, buffer.width, buffer.height);
-				
+				throw "getImageData is forbidden";
+				//buffer.__srcImageData = buffer.__srcContext.getImageData (0, 0, buffer.width, buffer.height);
+
 			} else {
 				
 				buffer.__srcImageData = buffer.__srcContext.createImageData (buffer.width, buffer.height);
