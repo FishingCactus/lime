@@ -937,6 +937,7 @@ class HXProject {
 						
 						var font = Font.fromFile (asset.sourcePath);
 						embeddedAsset.fontName = font.name;
+						embeddedAsset.data = { ascent: font.ascender, descent: -font.descender, unitEm: font.unitsPerEM };
 						
 					} catch (e:Dynamic) {}
 					
