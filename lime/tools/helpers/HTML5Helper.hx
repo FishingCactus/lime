@@ -68,25 +68,28 @@ class HTML5Helper {
 		}
 		
 		var templatePaths = [ PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("lime")), "templates") ].concat (project.templatePaths);
-		var webify = PathHelper.findTemplate (templatePaths, "bin/webify" + suffix);
+		var fontforge = PathHelper.findTemplate (templatePaths, "bin/fontforge" + suffix);
 		if (PlatformHelper.hostPlatform != Platform.WINDOWS) {
 			
-			Sys.command ("chmod", [ "+x", webify ]);
+			Sys.command ("chmod", [ "+x", fontforge ]);
 			
 		}
 		
+		var input = FileSystem.fullPath (font.sourcePath);
+		var output_base = Path.withoutExtension(input);
+
 		if (LogHelper.verbose) {
 			
-			ProcessHelper.runCommand ("", webify, [ FileSystem.fullPath (font.sourcePath) ]);
+			ProcessHelper.runCommand ("", fontforge, [ Path.directory(fontforge) + "/generate-fonts.pe",input, output_base + ".eot", output_base + ".woff", output_base + ".svg" ], true, true, true);
 			
 		} else {
 			
-			ProcessHelper.runProcess ("", webify, [ FileSystem.fullPath (font.sourcePath) ], true, true, true);
+			ProcessHelper.runCommand ("", fontforge, [ Path.directory(fontforge) + "/generate-fonts.pe", input, output_base + ".eot", output_base + ".woff", output_base + ".svg" ]);
 			
 		}
 
 		try {
-			var svg_path = font.sourcePath.substr(0, font.sourcePath.length - 3) + "svg";
+			var svg_path = output_base + ".svg";
 
 			var svg_content = File.getContent( svg_path );
 
@@ -98,7 +101,7 @@ class HTML5Helper {
 			var ascent = Std.parseInt( font_face.att.ascent );
 			var descent = -Std.parseInt( font_face.att.descent );
 
-			var config_path = font.sourcePath.substr(0, font.sourcePath.length - 3) + "json";
+			var config_path = output_base + ".json";
 
 			File.saveContent( config_path, Json.stringify( { unitEm : unitEm, ascent:ascent, descent:descent }) );
 			font.data = { unitEm : unitEm, ascent:ascent, descent:descent };
