@@ -97,14 +97,17 @@ class HTML5Helper {
 
 			var font_face = svg_xml.node.defs.node.font.node.resolve('font-face');
 
+			var bbox:Array<Int> = font_face.att.bbox.split(" ").map(function(element) {return Std.parseInt(element);} );
+			var height = bbox[3] - bbox[1];
+
 			var unitEm = Std.parseInt( font_face.att.resolve('units-per-em') );
 			var ascent = Std.parseInt( font_face.att.ascent );
 			var descent = -Std.parseInt( font_face.att.descent );
 
 			var config_path = output_base + ".json";
 
-			File.saveContent( config_path, Json.stringify( { unitEm : unitEm, ascent:ascent, descent:descent }) );
-			font.data = { unitEm : unitEm, ascent:ascent, descent:descent };
+			File.saveContent( config_path, Json.stringify( { unitEm : unitEm, ascent:ascent, descent:descent,height:height }) );
+			font.data = { unitEm : unitEm, ascent:ascent, descent:descent, height:height };
 		} catch( e :Dynamic ){
 			LogHelper.warn ("Unable to extract font information for " + font.sourcePath );
 		}
