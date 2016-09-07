@@ -43,50 +43,79 @@ class HTML5Helper {
 	
 	
 	public static function generateWebfonts (project:HXProject, font:Asset):Void {
-		
-		var suffix = switch (PlatformHelper.hostPlatform) {
-			
-			case Platform.WINDOWS: "-windows.exe";
-			case Platform.MAC: "-mac";
-			case Platform.LINUX: "-linux";
-			default: return;
-			
-		}
-		
-		if (suffix == "-linux") {
-			
-			if (PlatformHelper.hostArchitecture == Architecture.X86) {
-				
-				suffix += "32";
-				
-			} else {
-				
-				suffix += "64";
-				
-			}
-			
-		}
-		
-		var templatePaths = [ PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("lime")), "templates") ].concat (project.templatePaths);
-		var fontforge = PathHelper.findTemplate (templatePaths, "bin/fontforge" + suffix);
-		if (PlatformHelper.hostPlatform != Platform.WINDOWS) {
-			
-			Sys.command ("chmod", [ "+x", fontforge ]);
-			
-		}
-		
+
 		var input = FileSystem.fullPath (font.sourcePath);
 		var output_base = Path.withoutExtension(input);
-
-		if (LogHelper.verbose) {
-			
-			ProcessHelper.runCommand ("", fontforge, [ Path.directory(fontforge) + "/generate-fonts.pe",input, output_base + ".eot", output_base + ".woff", output_base + ".svg" ], true, true, true);
-			
-		} else {
-			
-			ProcessHelper.runCommand ("", fontforge, [ Path.directory(fontforge) + "/generate-fonts.pe", input, output_base + ".eot", output_base + ".woff", output_base + ".svg" ]);
-			
+		var templatePaths = [ PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("lime")), "templates") ].concat (project.templatePaths);
+		
+		// First, try if fontforge exists
+		var fontforge = "fontforge";
+		if( PlatformHelper.hostPlatform == Platform.WINDOWS ) {
+			fontforge += ".exe";
 		}
+		
+		var pid = new sys.io.Process(fontforge, ["-usage"]);
+		if( pid.exitCode() == 0 ) {
+			var generate_script = PathHelper.findTemplate (templatePaths, "bin/generate-fonts.pe" );
+			
+			if (LogHelper.verbose) {
+
+				ProcessHelper.runCommand ("", fontforge, [ generate_script, input, output_base + ".eot", output_base + ".woff", output_base + ".svg" ], true, true, true);
+
+			} else {
+
+				ProcessHelper.runCommand ("", fontforge, [ generate_script, input, output_base + ".eot", output_base + ".woff", output_base + ".svg" ]);
+
+			}
+		} else {
+			trace("Failed to execute fontforge. Check if it is installed and on the path. Falling back to webify.");
+			#if fail_no_fontforge
+				trace("Font extraction stopped because fontforge is missing.");
+				return;
+			#end
+
+			var suffix = switch (PlatformHelper.hostPlatform) {
+
+				case Platform.WINDOWS: "-windows.exe";
+				case Platform.MAC: "-mac";
+				case Platform.LINUX: "-linux";
+				default: "";
+
+			}
+
+			if (suffix == "-linux") {
+
+				if (PlatformHelper.hostArchitecture == Architecture.X86) {
+
+					suffix += "32";
+
+				} else {
+
+					suffix += "64";
+
+				}
+			}
+
+			var templatePaths = [ PathHelper.combine (PathHelper.getHaxelib (new Haxelib ("lime")), "templates") ].concat (project.templatePaths);
+			var webify = PathHelper.findTemplate (templatePaths, "bin/webify" + suffix);
+			if (PlatformHelper.hostPlatform != Platform.WINDOWS) {
+
+				Sys.command ("chmod", [ "+x", webify ]);
+
+			}
+			
+			if (LogHelper.verbose) {
+
+				ProcessHelper.runCommand ("", webify, [ FileSystem.fullPath (font.sourcePath) ]);
+
+			} else {
+
+				ProcessHelper.runProcess ("", webify, [ FileSystem.fullPath (font.sourcePath) ], true, true, true);
+
+			}
+
+		}
+
 
 		try {
 			var svg_path = output_base + ".svg";
@@ -97,12 +126,18 @@ class HTML5Helper {
 
 			var font_face = svg_xml.node.defs.node.font.node.resolve('font-face');
 
-			var bbox:Array<Int> = font_face.att.bbox.split(" ").map(function(element) {return Std.parseInt(element);} );
-			var height = bbox[3] - bbox[1];
-
 			var unitEm = Std.parseInt( font_face.att.resolve('units-per-em') );
 			var ascent = Std.parseInt( font_face.att.ascent );
 			var descent = -Std.parseInt( font_face.att.descent );
+
+			var height = 0;
+			try {
+				var bbox:Array<Int> = font_face.att.bbox.split(" ").map(function(element) {return Std.parseInt(element);} );
+				height = bbox[3] - bbox[1];
+			} catch( e: Dynamic ) {
+				height = ascent + descent;
+			}
+
 
 			var config_path = output_base + ".json";
 
