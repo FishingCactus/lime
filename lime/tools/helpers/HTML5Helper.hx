@@ -60,11 +60,11 @@ class HTML5Helper {
 			
 			if (LogHelper.verbose) {
 
-				ProcessHelper.runCommand ("", fontforge, [ generate_script, input, output_base + ".eot", output_base + ".woff", output_base + ".svg" ], true, true, true);
+				ProcessHelper.runCommand ("", fontforge, [ generate_script, input, output_base + ".eot", output_base + ".woff", output_base + ".svg" ]);
 
 			} else {
 
-				ProcessHelper.runCommand ("", fontforge, [ generate_script, input, output_base + ".eot", output_base + ".woff", output_base + ".svg" ]);
+				ProcessHelper.runCommand ("", fontforge, [ generate_script, input, output_base + ".eot", output_base + ".woff", output_base + ".svg" ], true, true, true);
 
 			}
 		} else {
