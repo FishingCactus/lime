@@ -224,7 +224,8 @@ class HTML5Application {
 
 			if (parent.renderer != null) {
 
-				parent.renderer.onRender.dispatch ();
+				//parent.renderer.onRender.dispatch ();
+				parent.render(parent.renderer);
 				parent.renderer.flip ();
 
 			}
@@ -328,8 +329,6 @@ class HTML5Application {
 
 					var cacheWidth = parent.window.width;
 					var cacheHeight = parent.window.height;
-
-					parent.window.backend.handleResize ();
 
 					if (parent.window.width != cacheWidth || parent.window.height != cacheHeight) {
 
