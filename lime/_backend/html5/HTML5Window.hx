@@ -175,8 +175,7 @@ class HTML5Window {
 
 			haxe.Timer.delay(function() {
 				canvasBoundingClientRect = canvas.getBoundingClientRect();
-			},1);
-
+			}, 1);
 		} else {
 
 			div.style.width = parent.width + "px";
@@ -314,7 +313,7 @@ class HTML5Window {
 					var rect = canvasBoundingClientRect;
 
 					if(rect.left == rect.right) { // The first getBoundingClientRect call is too realy, rect is degenerated.
-						canvasBoundingClientRect = canvas.getBoundingClientRect();
+						throw "getBoundingClientRect is empty!";
 					}
 
 					x = (event.clientX - rect.left) * (parent.width / rect.width);
@@ -552,48 +551,49 @@ class HTML5Window {
 
 	public function resize (width:Int, height:Int):Void {
 
-		if (element != null) {
+		if ( parent.resizable ) {
+			if (element != null) {
+					parent.__width = width;
+					parent.__height = height;
 
-				parent.__width = width;
-				parent.__height = height;
+					if (canvas != null) {
 
-				if (canvas != null) {
+						if (element != cast canvas) {
 
-					if (element != cast canvas) {
-
-						var margin_left : Float = 0;
-						var margin_top : Float = 0;
-						var stage = this.parent.stage;
-						if ( stage != null  ) {
-							if( stage.scaleMode != StageScaleMode.NO_SCALE ) {
-								width = Std.int(stage.stageWidth * stage.scaleX);
-								height = Std.int(stage.stageHeight * stage.scaleY);
-								parent.__width = width;
-								parent.__height = height;
+							var margin_left : Float = 0;
+							var margin_top : Float = 0;
+							var stage = this.parent.stage;
+							if ( stage != null  ) {
+								if( stage.scaleMode != StageScaleMode.NO_SCALE ) {
+									width = Std.int(stage.stageWidth * stage.scaleX);
+									height = Std.int(stage.stageHeight * stage.scaleY);
+									parent.__width = width;
+									parent.__height = height;
+								}
+								margin_left = ( Browser.window.innerWidth - width ) / 2.0;
+								#if duell_container
+									margin_top = ( Browser.window.innerHeight - 25 - height ) / 2.0;
+								#else
+									margin_top = ( Browser.window.innerHeight - height ) / 2.0;
+								#end
 							}
-							margin_left = ( Browser.window.innerWidth - width ) / 2.0;
-							#if duell_container
-								margin_top = ( Browser.window.innerHeight - 25 - height ) / 2.0;
-							#else
-								margin_top = ( Browser.window.innerHeight - height ) / 2.0;
-							#end
+
+							canvas.width = width;
+							canvas.style.width = width + "px";
+							canvas.style.marginLeft = margin_left + "px";
+							canvas.style.marginTop = margin_top + "px";
+							canvas.height = height;
+							canvas.style.height = height + "px";
+							if ( canvas.parentElement != null ) {
+								canvas.parentElement.style.width = width + 2 * margin_left + "px";
+								canvas.parentElement.style.height = height + 2 * margin_top + "px";
+							}
 						}
 
-						canvas.width = width;
-						canvas.style.width = width + "px";
-						canvas.style.marginLeft = margin_left + "px";
-						canvas.style.marginTop = margin_top + "px";
-						canvas.height = height;
-						canvas.style.height = height + "px";
-						if ( canvas.parentElement != null ) {
-							canvas.parentElement.style.width = width + 2 * margin_left + "px";
-							canvas.parentElement.style.height = height + 2 * margin_top + "px";
-						}
+						canvasBoundingClientRect = canvas.getBoundingClientRect();
 					}
 
-					canvasBoundingClientRect = canvas.getBoundingClientRect();
-				}
-
+			}
 		}
 
 	}
