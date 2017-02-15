@@ -123,6 +123,8 @@ class ApplicationMain {
 		
 	}
 	
+	public static function resize(object:Dynamic): Void {
+	}
 	
 	#if neko
 	@:noCompletion @:dox(hide) public static function __init__ () {

@@ -36,6 +36,7 @@ class HTML5Application {
 	private var parent:Application;
 	public static var stopUpdating:Bool = false;
 	private static var instance:HTML5Application;
+	private var requestAnimFrameFunc:Dynamic;
 	#if stats
 	private var stats:Dynamic;
 	#end
@@ -171,7 +172,14 @@ class HTML5Application {
 
 		lastUpdate = Date.now ().getTime ();
 
+		requestAnimFrameFunc = untyped __js__("window.requestAnimationFrame");
+
 		handleApplicationEvent ();
+
+		#if profile
+		untyped __js__("window.frameIndex = 0;");
+		untyped __js__("window.updateCalls = 0;");
+		#end
 
 		return 0;
 
@@ -257,9 +265,21 @@ class HTML5Application {
 		}
 
 		if( !stopUpdating ){
-			Browser.window.requestAnimationFrame (cast staticHandleApplicationEvent);
+			#if profile
+			untyped __js__("
+				if(window.countUpdate) {
+					++window.frameIndex;
+					if(window.frameIndex == 150) {
+						var cpf = window.updateCalls / 150;
+						console.log('__update/frame: ' + cpf);
+						window.frameIndex = 0;
+						window.updateCalls = 0;
+					}
+				}
+			");
+			#end
+			requestAnimFrameFunc.call(untyped __js__("window"), staticHandleApplicationEvent);
 		}
-
 	}
 
 	private static function staticHandleApplicationEvent()
@@ -327,14 +347,7 @@ class HTML5Application {
 
 				case "resize":
 
-					var cacheWidth = parent.window.width;
-					var cacheHeight = parent.window.height;
-
-					if (parent.window.width != cacheWidth || parent.window.height != cacheHeight) {
-
-						parent.window.onResize.dispatch (parent.window.width, parent.window.height);
-
-					}
+					parent.window.resize (parent.window.width, parent.window.height);
 
 				case "beforeunload":
 
