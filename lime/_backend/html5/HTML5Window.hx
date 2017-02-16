@@ -150,20 +150,26 @@ class HTML5Window {
 				parent.resize(Browser.window.innerWidth, Browser.window.innerHeight);
 			#end
 
-		} else if (parent.width == 0 && parent.height == 0) {
+		} else {
 
-			if (element != null && element.clientWidth != 0 && element.clientHeight != 0 ) {
+			if (parent.width == 0 && parent.height == 0) {
 
-				parent.resize(element.clientWidth, element.clientHeight);
+				if (element != null && element.clientWidth != 0 && element.clientHeight != 0 ) {
 
-			} else {
+					parent.resize(element.clientWidth, element.clientHeight);
 
-				parent.resize(Browser.window.innerWidth, Browser.window.innerHeight);
+				} else {
 
+					parent.resize(Browser.window.innerWidth, Browser.window.innerHeight);
+
+				}
+
+				// :NOTE: Can't start fullscreen.
+				// parent.fullscreen = true;
 			}
 
-			// :NOTE: Can't start fullscreen.
-			// parent.fullscreen = true;
+			parent.__originalWidth = parent.width;
+			parent.__originalHeight = parent.height;
 
 		}
 
