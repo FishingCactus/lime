@@ -32,7 +32,6 @@ class HTML5Application {
 	private var deltaTime:Float;
 	private var framePeriod:Float;
 	private var lastUpdate:Float;
-	private var nextUpdate:Float;
 	private var parent:Application;
 	public static var stopUpdating:Bool = false;
 	private static var instance:HTML5Application;
@@ -48,7 +47,6 @@ class HTML5Application {
 
 		currentUpdate = 0;
 		lastUpdate = 0;
-		nextUpdate = 0;
 		framePeriod = -1;
 
 		AudioManager.init ();
@@ -170,11 +168,9 @@ class HTML5Application {
 			window.requestAnimFrame = window.requestAnimationFrame;
 		");
 
-		lastUpdate = Date.now ().getTime ();
-
 		requestAnimFrameFunc = untyped __js__("window.requestAnimationFrame");
 
-		handleApplicationEvent ();
+		handleApplicationEvent (0);
 
 		#if profile
 		untyped __js__("window.frameIndex = 0;");
@@ -212,21 +208,20 @@ class HTML5Application {
 	}
 
 
-	private function handleApplicationEvent (?__):Void {
+	private function handleApplicationEvent (timestamp:Float):Void {
 
 		#if supports_devices
 			updateGameDevices ();
 		#end
 
-		currentUpdate = lime.system.System.getTimer();
+		currentUpdate = timestamp;
+		deltaTime = currentUpdate - lastUpdate;
 
-		if (currentUpdate >= nextUpdate) {
+		if (deltaTime > framePeriod) {
 
 			#if stats
 			stats.begin ();
 			#end
-
-			deltaTime = currentUpdate - lastUpdate;
 
 			parent.onUpdate.dispatch (Std.int (deltaTime));
 
@@ -244,23 +239,13 @@ class HTML5Application {
 
 			if (framePeriod < 0) {
 
-				nextUpdate = currentUpdate;
-				nextUpdate = currentUpdate;
+				lastUpdate = currentUpdate;
 
 			} else {
 
-				nextUpdate = currentUpdate + framePeriod;
-
-				//while (nextUpdate <= currentUpdate) {
-					//
-					//nextUpdate += framePeriod;
-					//
-				//}
-
+				lastUpdate = currentUpdate - ( deltaTime % framePeriod );
 
 			}
-
-			lastUpdate = currentUpdate;
 
 		}
 
@@ -282,9 +267,9 @@ class HTML5Application {
 		}
 	}
 
-	private static function staticHandleApplicationEvent()
+	private static function staticHandleApplicationEvent(deltaTime:Int)
 	{
-		instance.handleApplicationEvent();
+		instance.handleApplicationEvent(deltaTime);
 	}
 
 	private function handleKeyEvent (event:KeyboardEvent):Void {
