@@ -170,11 +170,9 @@ class HTML5Application {
 			window.requestAnimFrame = window.requestAnimationFrame;
 		");
 
-		lastUpdate = Date.now ().getTime ();
-
 		requestAnimFrameFunc = untyped __js__("window.requestAnimationFrame");
 
-		handleApplicationEvent ();
+		handleApplicationEvent (0);
 
 		#if profile
 		untyped __js__("window.frameIndex = 0;");
@@ -212,13 +210,13 @@ class HTML5Application {
 	}
 
 
-	private function handleApplicationEvent (?__):Void {
+	private function handleApplicationEvent (timestamp : Float):Void {
 
 		#if supports_devices
 			updateGameDevices ();
 		#end
 
-		currentUpdate = lime.system.System.getTimer();
+		currentUpdate = timestamp;
 
 		if (currentUpdate >= nextUpdate) {
 
@@ -245,18 +243,12 @@ class HTML5Application {
 			if (framePeriod < 0) {
 
 				nextUpdate = currentUpdate;
-				nextUpdate = currentUpdate;
 
 			} else {
 
-				nextUpdate = currentUpdate + framePeriod;
-
-				//while (nextUpdate <= currentUpdate) {
-					//
-					//nextUpdate += framePeriod;
-					//
-				//}
-
+				do {
+					nextUpdate += framePeriod;
+				} while( nextUpdate < currentUpdate );
 
 			}
 
@@ -282,9 +274,9 @@ class HTML5Application {
 		}
 	}
 
-	private static function staticHandleApplicationEvent()
+	private static function staticHandleApplicationEvent(timestamp:Float)
 	{
-		instance.handleApplicationEvent();
+		instance.handleApplicationEvent(timestamp);
 	}
 
 	private function handleKeyEvent (event:KeyboardEvent):Void {
