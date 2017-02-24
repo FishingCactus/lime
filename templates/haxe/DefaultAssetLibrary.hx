@@ -604,6 +604,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		if (path.exists (id)) {
 			
 			var image = new js.html.Image ();
+            image.crossOrigin = "Anonymous";
 			image.onload = function (_):Void {
 				
 				promise.complete (Image.fromImageElement (image));
