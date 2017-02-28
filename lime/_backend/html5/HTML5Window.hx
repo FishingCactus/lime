@@ -143,12 +143,7 @@ class HTML5Window {
 
 			parent.__originalWidth = parent.width;
 			parent.__originalHeight = parent.height;
-			#if duell_container
-				// :NOTE: account for menu bar
-				parent.resize(Browser.window.innerWidth, Std.int(Browser.window.innerHeight - 25));
-			#else
-				parent.resize(Browser.window.innerWidth, Browser.window.innerHeight);
-			#end
+			parent.resize(Browser.window.innerWidth, Std.int(Browser.window.innerHeight - 25));
 
 		} else {
 
@@ -560,11 +555,7 @@ class HTML5Window {
 									parent.__height = height;
 								}
 								margin_left = ( Browser.window.innerWidth - width ) / 2.0;
-								#if duell_container
-									margin_top = ( Browser.window.innerHeight - 25 - height ) / 2.0;
-								#else
-									margin_top = ( Browser.window.innerHeight - height ) / 2.0;
-								#end
+								margin_top = ( Browser.window.innerHeight - height ) / 2.0;
 							}
 
 							canvas.width = width;
