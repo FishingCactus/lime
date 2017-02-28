@@ -258,21 +258,39 @@ class HTML5Application {
 
 		if( !stopUpdating ){
 			#if profile
-			untyped __js__("
-				if(window.countUpdate) {
-					++window.frameIndex;
-					if(window.frameIndex == 150) {
-						var cpf = window.updateCalls / 150;
-						console.log('__update/frame: ' + cpf);
-						window.frameIndex = 0;
-						window.updateCalls = 0;
+				if(__updateCount == true) {
+					__frameIndex++;
+					if(__frameIndex == 150) {
+						var cpf = __updateCalls / 150;
+						trace('__update/frame: ' + cpf);
+						__frameIndex = 0;
+						__updateCalls = 0;
 					}
 				}
-			");
 			#end
 			requestAnimFrameFunc.call(untyped __js__("window"), staticHandleApplicationEvent);
 		}
 	}
+
+	#if profile
+		private static var __updateCount = false;
+		private static var __frameIndex = 0;
+		public static var __updateCalls = 0;
+
+		public static function __init__ () {
+			#if js
+				untyped __js__ ("$global.Profile = $global.Profile || {}");
+				untyped __js__ ("$global.Profile.UpdateInfo = {}");
+				untyped __js__ ("$global.Profile.UpdateInfo.countUpdate = lime__$backend_html5_HTML5Application.countUpdate");
+			#end
+		}
+
+		public static function countUpdate(value) {
+			__updateCount = value;
+			__frameIndex = 0;
+			__updateCalls = 0;
+		}
+	#end
 
 	private static function staticHandleApplicationEvent(timestamp:Float)
 	{
