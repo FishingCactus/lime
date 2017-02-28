@@ -143,7 +143,7 @@ class HTML5Window {
 
 			parent.__originalWidth = parent.width;
 			parent.__originalHeight = parent.height;
-			parent.resize(Browser.window.innerWidth, Std.int(Browser.window.innerHeight - 25));
+			parent.resize(Browser.window.innerWidth, Browser.window.innerHeight);
 
 		} else {
 
