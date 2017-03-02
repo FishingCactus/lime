@@ -357,7 +357,7 @@ class HTML5Application {
 
 				case "resize":
 
-					parent.window.resize (parent.window.width, parent.window.height);
+					// parent.window.resize (parent.window.width, parent.window.height);
 
 				case "beforeunload":
 
