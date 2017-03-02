@@ -556,8 +556,8 @@ class HTML5Window {
 									parent.__width = width;
 									parent.__height = height;
 								}
-								margin_left = ( container_width - width ) / 2.0;
-								margin_top = ( container_height - height ) / 2.0;
+								margin_left = Math.floor(( container_width - width ) / 2.0);
+								margin_top = Math.floor(( container_height - height ) / 2.0);
 							}
 
 							canvas.width = width;
