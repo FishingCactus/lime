@@ -547,6 +547,8 @@ class HTML5Window {
 							var margin_left : Float = 0;
 							var margin_top : Float = 0;
 							var stage = this.parent.stage;
+							var container_width = width;
+							var container_height = height;
 							if ( stage != null  ) {
 								if( stage.scaleMode != StageScaleMode.NO_SCALE ) {
 									width = Std.int(stage.stageWidth * stage.scaleX);
@@ -554,8 +556,8 @@ class HTML5Window {
 									parent.__width = width;
 									parent.__height = height;
 								}
-								margin_left = ( Browser.window.innerWidth - width ) / 2.0;
-								margin_top = ( Browser.window.innerHeight - height ) / 2.0;
+								margin_left = ( container_width - width ) / 2.0;
+								margin_top = ( container_height - height ) / 2.0;
 							}
 
 							canvas.width = width;
