@@ -129,7 +129,7 @@ class HTML5Application {
 		Browser.window.addEventListener ("keyup", handleKeyEvent, false);
 		Browser.window.addEventListener ("focus", handleWindowEvent, false);
 		Browser.window.addEventListener ("blur", handleWindowEvent, false);
-		Browser.window.addEventListener ("resize", handleWindowEvent, false);
+		// Browser.window.addEventListener ("resize", handleWindowEvent, false);
 		Browser.window.addEventListener ("beforeunload", handleWindowEvent, false);
 
 		#if stats
@@ -345,9 +345,9 @@ class HTML5Application {
 					parent.window.onFocusOut.dispatch ();
 					parent.window.onDeactivate.dispatch ();
 
-				case "resize":
+				// case "resize":
 
-					parent.window.resize (parent.window.width, parent.window.height);
+				// 	parent.window.resize (parent.window.width, parent.window.height);
 
 				case "beforeunload":
 
