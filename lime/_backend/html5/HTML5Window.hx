@@ -143,7 +143,24 @@ class HTML5Window {
 
 			parent.__originalWidth = parent.width;
 			parent.__originalHeight = parent.height;
-			parent.resize(Browser.window.innerWidth, Browser.window.innerHeight);
+			// :NOTE: This will initialize the game to the original aspect ratio.
+			if (element != null && ( element.clientWidth != 0 || element.clientHeight != 0 ) ) {
+				var target_width = 0.0;
+				var target_height = 0.0;
+				if ( element.clientWidth != 0 && element.clientHeight != 0 ) {
+					target_width = element.clientWidth;
+					target_height = element.clientHeight;
+				} else if ( element.clientWidth != 0 ) {
+					target_width = element.clientWidth;
+					target_height = target_width * ( parent.__originalHeight / parent.__originalWidth );
+				} else {
+					target_height = element.clientHeight;
+					target_width = target_height * ( parent.__originalWidth / parent.__originalHeight ) ;
+				}
+				parent.resize(Std.int(target_width), Std.int(target_height));
+			} else {
+				parent.resize(Browser.window.innerWidth, Browser.window.innerHeight);
+			}
 
 		} else {
 
