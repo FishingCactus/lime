@@ -1452,7 +1452,7 @@ class CommandLineTools {
 				
 			}
 			
-			if (FileSystem.exists (lastArgument) && FileSystem.isDirectory (lastArgument)) {
+			if ((FileSystem.exists (lastArgument) && FileSystem.isDirectory (lastArgument) || lastArgument == "/")) {
 				
 				Sys.setCwd (lastArgument);
 				runFromHaxelib = true;
