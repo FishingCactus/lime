@@ -170,11 +170,9 @@ class HTML5Application {
 			window.requestAnimFrame = window.requestAnimationFrame;
 		");
 
-		lastUpdate = Date.now ().getTime ();
-
 		requestAnimFrameFunc = untyped __js__("window.requestAnimationFrame");
 
-		handleApplicationEvent ();
+		handleApplicationEvent (0);
 
 		#if profile
 		untyped __js__("window.frameIndex = 0;");
@@ -212,13 +210,13 @@ class HTML5Application {
 	}
 
 
-	private function handleApplicationEvent (?__):Void {
+	private function handleApplicationEvent (timestamp : Float):Void {
 
 		#if supports_devices
 			updateGameDevices ();
 		#end
 
-		currentUpdate = lime.system.System.getTimer();
+		currentUpdate = timestamp;
 
 		if (currentUpdate >= nextUpdate) {
 
@@ -245,18 +243,12 @@ class HTML5Application {
 			if (framePeriod < 0) {
 
 				nextUpdate = currentUpdate;
-				nextUpdate = currentUpdate;
 
 			} else {
 
-				nextUpdate = currentUpdate + framePeriod;
-
-				//while (nextUpdate <= currentUpdate) {
-					//
-					//nextUpdate += framePeriod;
-					//
-				//}
-
+				do {
+					nextUpdate += framePeriod;
+				} while( nextUpdate < currentUpdate );
 
 			}
 
@@ -266,25 +258,43 @@ class HTML5Application {
 
 		if( !stopUpdating ){
 			#if profile
-			untyped __js__("
-				if(window.countUpdate) {
-					++window.frameIndex;
-					if(window.frameIndex == 150) {
-						var cpf = window.updateCalls / 150;
-						console.log('__update/frame: ' + cpf);
-						window.frameIndex = 0;
-						window.updateCalls = 0;
+				if(__updateCount == true) {
+					__frameIndex++;
+					if(__frameIndex == 150) {
+						var cpf = __updateCalls / 150;
+						trace('__update/frame: ' + cpf);
+						__frameIndex = 0;
+						__updateCalls = 0;
 					}
 				}
-			");
 			#end
 			requestAnimFrameFunc.call(untyped __js__("window"), staticHandleApplicationEvent);
 		}
 	}
 
-	private static function staticHandleApplicationEvent()
+	#if profile
+		private static var __updateCount = false;
+		private static var __frameIndex = 0;
+		public static var __updateCalls = 0;
+
+		public static function __init__ () {
+			#if js
+				untyped __js__ ("$global.Profile = $global.Profile || {}");
+				untyped __js__ ("$global.Profile.UpdateInfo = {}");
+				untyped __js__ ("$global.Profile.UpdateInfo.countUpdate = lime__$backend_html5_HTML5Application.countUpdate");
+			#end
+		}
+
+		public static function countUpdate(value) {
+			__updateCount = value;
+			__frameIndex = 0;
+			__updateCalls = 0;
+		}
+	#end
+
+	private static function staticHandleApplicationEvent(timestamp:Float)
 	{
-		instance.handleApplicationEvent();
+		instance.handleApplicationEvent(timestamp);
 	}
 
 	private function handleKeyEvent (event:KeyboardEvent):Void {
@@ -347,7 +357,7 @@ class HTML5Application {
 
 				case "resize":
 
-					parent.window.resize (parent.window.width, parent.window.height);
+					// parent.window.resize (parent.window.width, parent.window.height);
 
 				case "beforeunload":
 

@@ -141,29 +141,47 @@ class HTML5Window {
 
 		if ( parent.resizable ) {
 
-			parent.__displayWidth = parent.width;
-			parent.__displayHeight = parent.height;
-			#if duell_container
-				// :NOTE: account for menu bar
-				parent.resize(Browser.window.innerWidth, Std.int(Browser.window.innerHeight - 25));
-			#else
-				parent.resize(Browser.window.innerWidth, Browser.window.innerHeight);
-			#end
-
-		} else if (parent.width == 0 && parent.height == 0) {
-
-			if (element != null && element.clientWidth != 0 && element.clientHeight != 0 ) {
-
-				parent.resize(element.clientWidth, element.clientHeight);
-
+			parent.__originalWidth = parent.width;
+			parent.__originalHeight = parent.height;
+			// :NOTE: This will initialize the game to the original aspect ratio.
+			if (element != null && ( element.clientWidth != 0 || element.clientHeight != 0 ) ) {
+				var target_width = 0.0;
+				var target_height = 0.0;
+				if ( element.clientWidth != 0 && element.clientHeight != 0 ) {
+					target_width = element.clientWidth;
+					target_height = element.clientHeight;
+				} else if ( element.clientWidth != 0 ) {
+					target_width = element.clientWidth;
+					target_height = target_width * ( parent.__originalHeight / parent.__originalWidth );
+				} else {
+					target_height = element.clientHeight;
+					target_width = target_height * ( parent.__originalWidth / parent.__originalHeight ) ;
+				}
+				parent.resize(Std.int(target_width), Std.int(target_height));
 			} else {
-
 				parent.resize(Browser.window.innerWidth, Browser.window.innerHeight);
-
 			}
 
-			// :NOTE: Can't start fullscreen.
-			// parent.fullscreen = true;
+		} else {
+
+			if (parent.width == 0 && parent.height == 0) {
+
+				if (element != null && element.clientWidth != 0 && element.clientHeight != 0 ) {
+
+					parent.resize(element.clientWidth, element.clientHeight);
+
+				} else {
+
+					parent.resize(Browser.window.innerWidth, Browser.window.innerHeight);
+
+				}
+
+				// :NOTE: Can't start fullscreen.
+				// parent.fullscreen = true;
+			}
+
+			parent.__originalWidth = parent.width;
+			parent.__originalHeight = parent.height;
 
 		}
 
@@ -546,6 +564,8 @@ class HTML5Window {
 							var margin_left : Float = 0;
 							var margin_top : Float = 0;
 							var stage = this.parent.stage;
+							var container_width = width;
+							var container_height = height;
 							if ( stage != null  ) {
 								if( stage.scaleMode != StageScaleMode.NO_SCALE ) {
 									width = Std.int(stage.stageWidth * stage.scaleX);
@@ -553,12 +573,8 @@ class HTML5Window {
 									parent.__width = width;
 									parent.__height = height;
 								}
-								margin_left = ( Browser.window.innerWidth - width ) / 2.0;
-								#if duell_container
-									margin_top = ( Browser.window.innerHeight - 25 - height ) / 2.0;
-								#else
-									margin_top = ( Browser.window.innerHeight - height ) / 2.0;
-								#end
+								margin_left = Math.floor(( container_width - width ) / 2.0);
+								margin_top = Math.floor(( container_height - height ) / 2.0);
 							}
 
 							canvas.width = width;
@@ -688,6 +704,14 @@ class HTML5Window {
 
 		return value;
 
+	}
+
+	public function getScreenWidth() : Int {
+		return js.Browser.window.screen.width;
+	}
+
+	public function getScreenHeight() : Int {
+		return js.Browser.window.screen.height;
 	}
 
 
