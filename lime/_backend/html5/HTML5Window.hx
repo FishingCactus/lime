@@ -151,10 +151,10 @@ class HTML5Window {
 					target_height = element.clientHeight;
 				} else if ( element.clientWidth != 0 ) {
 					target_width = element.clientWidth;
-					target_height = target_width * ( parent.__originalHeight / parent.__originalWidth );
+					target_height = Math.round(target_width * ( parent.__originalHeight / parent.__originalWidth ));
 				} else {
 					target_height = element.clientHeight;
-					target_width = target_height * ( parent.__originalWidth / parent.__originalHeight ) ;
+					target_width = Math.round(target_height * ( parent.__originalWidth / parent.__originalHeight )) ;
 				}
 				parent.resize(Std.int(target_width), Std.int(target_height));
 			} else {
