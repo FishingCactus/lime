@@ -293,11 +293,11 @@ class HTML5Application {
 		}
 
 		public static function logStatistics(threshold = 1) {
-			for(symbol_id in __updateMap.keys()) {
-				if ( __updateMap.get(symbol_id) < threshold * 150 ) {
+			for(symbol_id in __lastUpdateMap.keys()) {
+				if ( __lastUpdateMap.get(symbol_id) < threshold * 150 ) {
 					continue;
 				}
-				trace('__symbol $symbol_id: ${__updateMap.get(symbol_id)/150} / frame');
+				trace('__symbol $symbol_id: ${__lastUpdateMap.get(symbol_id)/150} / frame');
 			}
 		}
 	#end
