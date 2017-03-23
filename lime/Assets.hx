@@ -1060,10 +1060,10 @@ class AssetCache {
 		audio = new Map<String, AudioBuffer> ();
 		font = new Map<String, Dynamic /*Font*/> ();
 		image = new Map<String, Image> ();
-		version = Std.int (Math.random () * 1000000);
-		
+        version = AssetCache.cacheVersion ();
 	}
-	
+
+    private macro static function cacheVersion () {}
 	
 	public function clear (prefix:String = null):Void {
 		
@@ -1528,10 +1528,14 @@ class Assets {
 		return fields;
 		
 	}
-	
-	
 }
 
+class AssetCache {
+    private static macro function cacheVersion () {
+        var version = Std.int (Math.random () * 1000000);
+        return Context.makeExpr (version, Context.currentPos ());
+    }
+}
 
 #end
 #end
