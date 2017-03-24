@@ -14,9 +14,10 @@ class Library {
 	public var preload:Bool;
 	public var sourcePath:String;
 	public var type:String;
+	public var excludes:Array<Dynamic>;
 	
 	
-	public function new (sourcePath:String, name:String = "", type:String = null, embed:Null<Bool> = null, preload:Bool = false, generate:Bool = false, prefix:String = "") {
+	public function new (sourcePath:String, name:String = "", type:String = null, embed:Null<Bool> = null, preload:Bool = false, generate:Bool = false, prefix:String = "", excludes:Array<Dynamic> = null) {
 		
 		this.sourcePath = sourcePath;
 		
@@ -35,6 +36,7 @@ class Library {
 		this.preload = preload;
 		this.generate = generate;
 		this.prefix = prefix;
+		this.excludes = excludes;
 		
 	}
 	
