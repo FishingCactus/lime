@@ -45,7 +45,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 	private var timer:Timer;
 
 	#if html5
-		public var fontData( default, null ) = new Map<String, {var ascent:Float; var descent:Float;}>();
+		public var fontData( default, null ) = new Map<String, {var ascent:Float; var descent:Float; var height:Float;}>();
 	#end
 
 	public function new () {
@@ -61,7 +61,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		#if html5
 		::if (assets != null)::
 		::foreach assets::::if (type == "font")::
-		fontData.set( '::fontName::', {ascent:::data.ascent::/::data.unitEm::, descent:::data.descent::/::data.unitEm::});::end::
+		fontData.set( '::fontName::', {ascent:::data.ascent::/::data.unitEm::, descent:::data.descent::/::data.unitEm::, height:::data.height::/::data.unitEm::});::end::
 		::end::::end::
 		#end
 

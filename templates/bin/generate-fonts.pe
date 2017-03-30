@@ -1,0 +1,6 @@
+#!/usr/local/bin/fontforge
+Open($1);
+Generate($2);
+Generate($3);
+Generate($4);
+Quit(0);
