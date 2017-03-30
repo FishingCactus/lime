@@ -124,7 +124,7 @@ abstract RGBA(Int) from Int to Int from UInt to UInt {
 		if (a != 0 && a != 0xFF) {
 			
 			unmult = 255.0 / a;
-			set (__clamp[Math.round (r * unmult)], __clamp[Math.round (g * unmult)], __clamp[Math.round (b * unmult)], a);
+			set (Std.int(Math.min(Math.max(Math.round (r * unmult),0),0xFF)), Std.int(Math.min(Math.max(Math.round (g * unmult),0),0xFF)), Std.int(Math.min(Math.max(Math.round (b * unmult),0),0xFF)), a);
 			
 		}
 		
