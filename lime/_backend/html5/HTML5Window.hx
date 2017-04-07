@@ -576,15 +576,20 @@ class HTML5Window {
 								margin_top = Math.floor(( container_height - height ) / 2.0);
 							}
 
-							canvas.width = width;
-							canvas.height = height;
 							canvas.style.width = originalWidth + "px";
 							canvas.style.height = originalHeight + "px";
+
 						}
 
 					}
 				}
 		}
+
+	}
+
+	public function resizeViewport(width:Int, height:Int) {
+		canvas.width = width;
+		canvas.height = height;
 	}
 
 

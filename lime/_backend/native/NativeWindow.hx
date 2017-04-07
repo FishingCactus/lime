@@ -185,6 +185,12 @@ class NativeWindow {
 		
 	}
 	
+	public function resizeViewport(width:Int, height:Int) {
+
+
+
+	}
+
 	
 	public function setBorderless (value:Bool):Bool {
 		
