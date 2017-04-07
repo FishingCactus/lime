@@ -551,38 +551,36 @@ class HTML5Window {
 	public function resize (width:Int, height:Int):Void {
 		var originalWidth = width;
 		var originalHeight = height;
-		if ( parent.resizable ) {
-				if (element != null) {
-					parent.__width = width;
-					parent.__height = height;
+		if (element != null) {
+			parent.__width = width;
+			parent.__height = height;
 
-					if (canvas != null) {
+			if (canvas != null) {
 
-						if (element != cast canvas) {
+				if (element != cast canvas) {
 
-							var margin_left : Float = 0;
-							var margin_top : Float = 0;
-							var stage = this.parent.stage;
-							var container_width = width;
-							var container_height = height;
-							if ( stage != null  ) {
-								if( stage.scaleMode != StageScaleMode.NO_SCALE ) {
-									width = Std.int(stage.stageWidth * stage.scaleX);
-									height = Std.int(stage.stageHeight * stage.scaleY);
-									parent.__width = width;
-									parent.__height = height;
-								}
-								margin_left = Math.floor(( container_width - width ) / 2.0);
-								margin_top = Math.floor(( container_height - height ) / 2.0);
-							}
-
-							canvas.style.width = originalWidth + "px";
-							canvas.style.height = originalHeight + "px";
-
+					var margin_left : Float = 0;
+					var margin_top : Float = 0;
+					var stage = this.parent.stage;
+					var container_width = width;
+					var container_height = height;
+					if ( stage != null  ) {
+						if( stage.scaleMode != StageScaleMode.NO_SCALE ) {
+							width = Std.int(stage.stageWidth * stage.scaleX);
+							height = Std.int(stage.stageHeight * stage.scaleY);
+							parent.__width = width;
+							parent.__height = height;
 						}
-
+						margin_left = Math.floor(( container_width - width ) / 2.0);
+						margin_top = Math.floor(( container_height - height ) / 2.0);
 					}
+
+					canvas.style.width = originalWidth + "px";
+					canvas.style.height = originalHeight + "px";
+
 				}
+
+			}
 		}
 
 	}

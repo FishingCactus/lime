@@ -129,7 +129,9 @@ class HTML5Application {
 		Browser.window.addEventListener ("keyup", handleKeyEvent, false);
 		Browser.window.addEventListener ("focus", handleWindowEvent, false);
 		Browser.window.addEventListener ("blur", handleWindowEvent, false);
-		// Browser.window.addEventListener ("resize", handleWindowEvent, false);
+		if ( parent.window.resizable ) {
+			Browser.window.addEventListener ("resize", handleWindowEvent, false);
+		}
 		Browser.window.addEventListener ("beforeunload", handleWindowEvent, false);
 
 		#if stats
