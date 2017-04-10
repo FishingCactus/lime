@@ -389,12 +389,12 @@ class GL {
 
 	#if (js && html5)
 	private static var context:RenderingContext;
+	#end
 
 	private static var currentProgram:GLProgram;
 	private static var currentActiveTexture:Int;
 	private static var currentBoundTexture:Vector<GLTexture> = new Vector (8);
 	private static var textureStateCache:Map<GLTexture, TextureState> = new Map ();
-	#end
 
 
 	public static inline function activeTexture (texture:Int):Void {
