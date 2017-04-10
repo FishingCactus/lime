@@ -298,6 +298,12 @@ class Window {
 
 	}
 	
+	public function resizeViewport(width:Int, height:Int):Void {
+
+		backend.resizeViewport(width, height);
+
+	}
+
 	
 	public function setIcon (image:Image):Void {
 		

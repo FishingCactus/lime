@@ -129,7 +129,9 @@ class HTML5Application {
 		Browser.window.addEventListener ("keyup", handleKeyEvent, false);
 		Browser.window.addEventListener ("focus", handleWindowEvent, false);
 		Browser.window.addEventListener ("blur", handleWindowEvent, false);
-		Browser.window.addEventListener ("resize", handleWindowEvent, false);
+		if ( parent.window.resizable ) {
+			Browser.window.addEventListener ("resize", handleWindowEvent, false);
+		}
 		Browser.window.addEventListener ("beforeunload", handleWindowEvent, false);
 
 		#if stats
@@ -173,11 +175,6 @@ class HTML5Application {
 		requestAnimFrameFunc = untyped __js__("window.requestAnimationFrame");
 
 		handleApplicationEvent (0);
-
-		#if profile
-		untyped __js__("window.frameIndex = 0;");
-		untyped __js__("window.updateCalls = 0;");
-		#end
 
 		return 0;
 
@@ -261,6 +258,8 @@ class HTML5Application {
 				if(__updateCount == true) {
 					__frameIndex++;
 					if(__frameIndex == 150) {
+						__lastUpdateMap = __updateMap;
+						__updateMap = new Map<String, Int>();
 						var cpf = __updateCalls / 150;
 						trace('__update/frame: ' + cpf);
 						__frameIndex = 0;
@@ -276,12 +275,15 @@ class HTML5Application {
 		private static var __updateCount = false;
 		private static var __frameIndex = 0;
 		public static var __updateCalls = 0;
+		public static var __updateMap = new Map<String, Int>();
+		public static var __lastUpdateMap = new Map<String, Int>();
 
 		public static function __init__ () {
 			#if js
 				untyped __js__ ("$global.Profile = $global.Profile || {}");
 				untyped __js__ ("$global.Profile.UpdateInfo = {}");
 				untyped __js__ ("$global.Profile.UpdateInfo.countUpdate = lime__$backend_html5_HTML5Application.countUpdate");
+				untyped __js__ ("$global.Profile.UpdateInfo.logStatistics = lime__$backend_html5_HTML5Application.logStatistics");
 			#end
 		}
 
@@ -289,6 +291,16 @@ class HTML5Application {
 			__updateCount = value;
 			__frameIndex = 0;
 			__updateCalls = 0;
+			__updateMap = new Map<String, Int>();
+		}
+
+		public static function logStatistics(threshold = 1) {
+			for(symbol_id in __lastUpdateMap.keys()) {
+				if ( __lastUpdateMap.get(symbol_id) < threshold * 150 ) {
+					continue;
+				}
+				trace('__symbol $symbol_id: ${__lastUpdateMap.get(symbol_id)/150} / frame');
+			}
 		}
 	#end
 
@@ -355,8 +367,7 @@ class HTML5Application {
 					parent.window.onFocusOut.dispatch ();
 					parent.window.onDeactivate.dispatch ();
 
-				case "resize":
-
+				// case "resize":
 					// parent.window.resize (parent.window.width, parent.window.height);
 
 				case "beforeunload":

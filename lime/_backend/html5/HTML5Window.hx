@@ -140,7 +140,6 @@ class HTML5Window {
 		}
 
 		if ( parent.resizable ) {
-
 			parent.__originalWidth = parent.width;
 			parent.__originalHeight = parent.height;
 			// :NOTE: This will initialize the game to the original aspect ratio.
@@ -152,16 +151,15 @@ class HTML5Window {
 					target_height = element.clientHeight;
 				} else if ( element.clientWidth != 0 ) {
 					target_width = element.clientWidth;
-					target_height = target_width * ( parent.__originalHeight / parent.__originalWidth );
+					target_height = Math.round(target_width * ( parent.__originalHeight / parent.__originalWidth ));
 				} else {
 					target_height = element.clientHeight;
-					target_width = target_height * ( parent.__originalWidth / parent.__originalHeight ) ;
+					target_width = Math.round(target_height * ( parent.__originalWidth / parent.__originalHeight )) ;
 				}
 				parent.resize(Std.int(target_width), Std.int(target_height));
 			} else {
 				parent.resize(Browser.window.innerWidth, Browser.window.innerHeight);
 			}
-
 		} else {
 
 			if (parent.width == 0 && parent.height == 0) {
@@ -551,48 +549,45 @@ class HTML5Window {
 
 
 	public function resize (width:Int, height:Int):Void {
-		if ( parent.resizable ) {
-			if (element != null) {
+		var originalWidth = width;
+		var originalHeight = height;
+		if (element != null) {
+			parent.__width = width;
+			parent.__height = height;
 
-					parent.__width = width;
-					parent.__height = height;
+			if (canvas != null) {
 
-					if (canvas != null) {
+				if (element != cast canvas) {
 
-						if (element != cast canvas) {
-
-							var margin_left : Float = 0;
-							var margin_top : Float = 0;
-							var stage = this.parent.stage;
-							var container_width = width;
-							var container_height = height;
-							if ( stage != null  ) {
-								if( stage.scaleMode != StageScaleMode.NO_SCALE ) {
-									width = Std.int(stage.stageWidth * stage.scaleX);
-									height = Std.int(stage.stageHeight * stage.scaleY);
-									parent.__width = width;
-									parent.__height = height;
-								}
-								margin_left = Math.floor(( container_width - width ) / 2.0);
-								margin_top = Math.floor(( container_height - height ) / 2.0);
-							}
-
-							canvas.width = width;
-							canvas.style.width = width + "px";
-							canvas.style.marginLeft = margin_left + "px";
-							canvas.style.marginTop = margin_top + "px";
-							canvas.height = height;
-							canvas.style.height = height + "px";
-							if ( canvas.parentElement != null ) {
-								canvas.parentElement.style.width = width + 2 * margin_left + "px";
-								canvas.parentElement.style.height = height + 2 * margin_top + "px";
-							}
+					var margin_left : Float = 0;
+					var margin_top : Float = 0;
+					var stage = this.parent.stage;
+					var container_width = width;
+					var container_height = height;
+					if ( stage != null  ) {
+						if( stage.scaleMode != StageScaleMode.NO_SCALE ) {
+							width = Std.int(stage.stageWidth * stage.scaleX);
+							height = Std.int(stage.stageHeight * stage.scaleY);
+							parent.__width = width;
+							parent.__height = height;
 						}
-
+						margin_left = Math.floor(( container_width - width ) / 2.0);
+						margin_top = Math.floor(( container_height - height ) / 2.0);
 					}
+
+					canvas.style.width = originalWidth + "px";
+					canvas.style.height = originalHeight + "px";
+
+				}
 
 			}
 		}
+
+	}
+
+	public function resizeViewport(width:Int, height:Int) {
+		canvas.width = width;
+		canvas.height = height;
 	}
 
 

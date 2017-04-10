@@ -1257,6 +1257,7 @@ class ProjectXMLParser extends HXProject {
 							var preload = false;
 							var generate = false;
 							var prefix = "";
+							var exclude = "";
 							
 							if (element.has.name) {
 								
@@ -1300,7 +1301,12 @@ class ProjectXMLParser extends HXProject {
 								
 							}
 							
-							libraries.push (new Library (path, name, type, embed, preload, generate, prefix));
+							var excludes:Array<Dynamic> = null;
+							if (element.elements.hasNext ()) {
+								excludes = parseLibraryExcludes(element);
+							}
+
+							libraries.push (new Library (path, name, type, embed, preload, generate, prefix, excludes));
 							
 						}
 					
@@ -1680,6 +1686,20 @@ class ProjectXMLParser extends HXProject {
 		
 	}
 	
+	private function parseLibraryExcludes(element:Fast):Array<Dynamic> {
+		var result:Array<Dynamic> = [];
+		for(childElement in element.elements) {
+			if(childElement.name == "exclude") {
+				if(childElement.has.name) {
+					result.push(childElement.att.name);
+				} else if (childElement.has.id) {
+					result.push(Std.parseInt(childElement.att.id));
+				}
+			}
+		}
+		return result;
+	}
+
 	
 	private function parseWindowElement (element:Fast):Void {
 		

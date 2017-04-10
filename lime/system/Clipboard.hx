@@ -16,8 +16,6 @@ class Clipboard {
 	public static var text (get, set):String;
 	
 	
-	
-	
 	// Get & Set Methods
 	
 	
@@ -33,6 +31,9 @@ class Clipboard {
 			return FlashClipboard.generalClipboard.getData (TEXT_FORMAT);
 			
 		}
+		#elseif html5
+		// :NOTE: pasted text is already handled as "input"
+		// return untyped __js__ ("clipboard.paste()");
 		#end
 		
 		return null;
@@ -47,6 +48,13 @@ class Clipboard {
 		return value;
 		#elseif flash
 		FlashClipboard.generalClipboard.setData (TEXT_FORMAT, value);
+		return value;
+		#elseif html5
+		try {
+			untyped __js__ ("clipboard.copy(value)");
+		} catch(e:Dynamic) {
+			trace("Failed to copy text.");
+		}
 		return value;
 		#end
 		
