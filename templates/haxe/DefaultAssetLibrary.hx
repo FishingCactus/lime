@@ -51,6 +51,8 @@ class DefaultAssetLibrary extends AssetLibrary {
 	public function new () {
 		
 		super ();
+
+        var remoteAssets = new Map<String, String>();
 		
 		#if (openfl && !flash)
 		::if (assets != null)::
@@ -58,7 +60,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		::end::::end::
 		#end
 
-		#if html5
+		#if html5                                                
 		::if (assets != null)::
 		::foreach assets::::if (type == "font")::
 		fontData.set( '::fontName::', {ascent:::data.ascent::/::data.unitEm::, descent:::data.descent::/::data.unitEm::});::end::
@@ -72,24 +74,36 @@ class DefaultAssetLibrary extends AssetLibrary {
 		::end::::end::
 		
 		#elseif html5
-		
+
 		::if (assets != null)::var id;
-		::foreach assets::id = "::id::";
-		::if (embed)::::if (type == "font")::className.set (id, __ASSET__::flatName::);::else::path.set (id, ::if (resourceName == id)::id::else::"::resourceName::"::end::);::end::
-		::else::path.set (id, ::if (resourceName == id)::id::else::"::resourceName::"::end::);::end::
-		type.set (id, AssetType.$$upper(::type::));
-		::end::::end::
-		
-		var assetsPrefix = null;
-		if (ApplicationMain.config != null && Reflect.hasField (ApplicationMain.config, "assetsPrefix")) {
-			assetsPrefix = ApplicationMain.config.assetsPrefix;
-		}
-		if (assetsPrefix != null) {
-			for (k in path.keys()) {
-				path.set(k, assetsPrefix + path[k]);
-			}
-		}
-		
+        ::foreach assets::id = "::id::";
+        ::if (embed)::
+            ::if (type == "font")::className.set (id, __ASSET__::flatName::);::else::path.set (id,::if (resourceName == id)::id::else::"::resourceName::"::end::);::end::
+        ::else::
+            remoteAssets.set (id, ::if (resourceName == id)::id::else::"::resourceName::"::end::);
+        ::end::
+        type.set (id, AssetType.$$upper(::type::));
+        ::end::
+        ::end::
+
+        var assetsPrefix = null;
+        if (ApplicationMain.config != null && Reflect.hasField (ApplicationMain.config, "assetsPrefix")) {
+            assetsPrefix = ApplicationMain.config.assetsPrefix;
+        }
+        if (assetsPrefix != null) {
+            for (k in path.keys()) {
+                path.set(k, assetsPrefix + path[k]);
+            }
+        }
+
+        var remoteUrl = null;
+        if (ApplicationMain.config != null && Reflect.hasField (ApplicationMain.config, "remoteAssetPath")) {
+            remoteUrl = ApplicationMain.config.remoteAssetPath;
+        }
+        for (j in remoteAssets.keys()) {
+            path.set(j, (remoteUrl != null) ? remoteUrl + remoteAssets[j] : remoteAssets[j]);
+        }
+
 		#else
 		
 		#if (windows || mac || linux)
