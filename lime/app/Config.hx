@@ -5,6 +5,7 @@ typedef Config = {
 	
 	#if (js && html5)
 	@:optional var assetsPrefix:String;
+	@:optional var remoteAssetPath:String;
 	#end
 	@:optional var build:String;
 	@:optional var company:String;
