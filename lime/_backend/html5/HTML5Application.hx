@@ -255,7 +255,7 @@ class HTML5Application {
 
 		if( !stopUpdating ){
 			#if profile
-				if(__updateCount == true) {
+				if(__countUpdate == true) {
 					__frameIndex++;
 					if(__frameIndex == 150) {
 						__lastUpdateMap = __updateMap;
@@ -266,32 +266,53 @@ class HTML5Application {
 						__updateCalls = 0;
 					}
 				}
+
+				if(__countUpload == true) {
+					__uploadFrameIndex++;
+					if(__uploadFrameIndex == 30) {
+						var cpf = __uploadCount / 30;
+						trace('BitmapData uploads/frame: ' + cpf);
+						__uploadFrameIndex = 0;
+						__uploadCount = 0;
+					}
+				}
 			#end
 			requestAnimFrameFunc.call(untyped __js__("window"), staticHandleApplicationEvent);
 		}
 	}
 
 	#if profile
-		private static var __updateCount = false;
+		private static var __countUpdate = false;
 		private static var __frameIndex = 0;
 		public static var __updateCalls = 0;
 		public static var __updateMap = new Map<String, Int>();
 		public static var __lastUpdateMap = new Map<String, Int>();
 
+		private static var __countUpload = false;
+		private static var __uploadFrameIndex = 0;
+		private static var __uploadCount = 0;
+
 		public static function __init__ () {
-			#if js
-				untyped __js__ ("$global.Profile = $global.Profile || {}");
-				untyped __js__ ("$global.Profile.UpdateInfo = {}");
-				untyped __js__ ("$global.Profile.UpdateInfo.countUpdate = lime__$backend_html5_HTML5Application.countUpdate");
-				untyped __js__ ("$global.Profile.UpdateInfo.logStatistics = lime__$backend_html5_HTML5Application.logStatistics");
-			#end
+			untyped $global.Profile = $global.Profile || {};
+			untyped $global.Profile.UpdateInfo = {};
+			untyped $global.Profile.UpdateInfo.count = countUpdate;
+			untyped $global.Profile.UpdateInfo.logStatistics = logStatistics;
+
+			untyped $global.Profile.BitmapDataUpload = {};
+			untyped $global.Profile.BitmapDataUpload.count = countUpload;
 		}
 
 		public static function countUpdate(value) {
-			__updateCount = value;
+			__countUpdate = value;
 			__frameIndex = 0;
 			__updateCalls = 0;
 			__updateMap = new Map<String, Int>();
+		}
+
+		public static function countUpload(value) {
+			__countUpload = value;
+			__uploadFrameIndex = 0;
+			__uploadCount = 0;
 		}
 
 		public static function logStatistics(threshold = 1) {
