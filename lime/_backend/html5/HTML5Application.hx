@@ -54,6 +54,29 @@ class HTML5Application {
 		AudioManager.init ();
 
 		instance = this;
+
+		#if dev
+			untyped __js__("
+				var script = document.createElement('SCRIPT');
+				script.src = 'https://code.jquery.com/jquery-1.12.4.js';
+				script.type = 'text/javascript';
+				script.onload = function() {
+					var script = document.createElement('SCRIPT');
+					script.src = 'https://code.jquery.com/ui/1.12.1/jquery-ui.js';
+					script.type = 'text/javascript';
+					document.getElementsByTagName('head')[0].appendChild(script);
+				};
+				document.getElementsByTagName('head')[0].appendChild(script);
+
+				var head  = document.getElementsByTagName('head')[0];
+				var link  = document.createElement('link');
+				link.rel  = 'stylesheet';
+				link.type = 'text/css';
+				link.href = '//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css';
+				link.media = 'all';
+				head.appendChild(link);
+				");
+		#end
 	}
 
 
