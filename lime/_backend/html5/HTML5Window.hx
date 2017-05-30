@@ -617,19 +617,23 @@ class HTML5Window {
 
 				// TODO: Position for mobile browsers better
 
-				textInput.style.left = "0px";
-				textInput.style.top = "50%";
+
 
 				if (~/(iPad|iPhone|iPod).*OS 8_/gi.match (Browser.window.navigator.userAgent)) {
 
 					textInput.style.fontSize = "0px";
 					textInput.style.width = '0px';
 					textInput.style.height = '0px';
+					textInput.style.left = "0px";
+					textInput.style.top = "50%";
 
 				} else {
 
 					textInput.style.width = '1px';
 					textInput.style.height = '1px';
+
+					textInput.style.left = "-1000px";
+					textInput.style.top = "0px";
 
 				}
 
