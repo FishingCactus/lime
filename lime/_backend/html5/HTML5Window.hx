@@ -620,9 +620,18 @@ class HTML5Window {
 				textInput.style.left = "0px";
 				textInput.style.top = "50%";
 
-				textInput.style.fontSize = "0px";
-				textInput.style.width = '0px';
-				textInput.style.height = '0px';
+				if (~/(iPad|iPhone|iPod).*OS 8_/gi.match (Browser.window.navigator.userAgent)) {
+
+					textInput.style.fontSize = "0px";
+					textInput.style.width = '0px';
+					textInput.style.height = '0px';
+
+				} else {
+
+					textInput.style.width = '1px';
+					textInput.style.height = '1px';
+
+				}
 
 				untyped (textInput.style).pointerEvents = 'none';
 				textInput.style.zIndex = "-10000000";
