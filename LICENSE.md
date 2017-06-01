@@ -25,9 +25,6 @@ THE SOFTWARE.
 
 -------
 
-This product bundles cairo 1.14.2, which is available under an
-"MPL 1.1" license. For details, see [project/lib/cairo/](project/lib).
-
 This product bundles libcurl 7.37.1, which is available under an
 "MIT/X derivate" license. For details, see [project/lib/curl/](project/lib).
 
