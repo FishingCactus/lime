@@ -23,7 +23,7 @@ class Renderer {
 
 		this.window = window;
 
-		#if display
+		#if !neko
 		backend = new RendererBackend (this);
 		#end
 

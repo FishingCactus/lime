@@ -59,7 +59,7 @@ class Application extends Module {
 		windows = new Array ();
 		windowByID = new Map ();
 
-		#if display
+		#if !neko
 			backend = new ApplicationBackend (this);
 		#end
 		onExit.add (onModuleExit);
@@ -141,7 +141,7 @@ class Application extends Module {
 
 				for (windowConfig in config.windows) {
 
-					#if display
+					#if !neko
 					var window = new Window (windowConfig);
 					createWindow (window);
 					#end
@@ -197,7 +197,7 @@ class Application extends Module {
 
 		if (window.renderer == null) {
 
-			#if display
+			#if !neko
 			var renderer = new Renderer (window);
 			addRenderer (renderer);
 			#end

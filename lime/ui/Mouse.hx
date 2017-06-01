@@ -1,6 +1,6 @@
 package lime.ui;
 
-#if display
+#if !neko
 class Mouse {
 
 

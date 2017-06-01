@@ -111,7 +111,7 @@ class Window {
 
 		}
 
-		#if display
+		#if !neko
 		backend = new WindowBackend (this);
 		#end
 	}
