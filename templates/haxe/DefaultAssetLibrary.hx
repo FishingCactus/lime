@@ -384,6 +384,26 @@ class DefaultAssetLibrary extends AssetLibrary {
 
 	}
 
+	#if js
+	public static function getStringFromBytes(bytes:Bytes) {
+		var bufferView = UInt8Array.fromBytes(bytes);
+		var length = bufferView.length;
+		var result = "";
+		var addition = 65535;
+		var i = 0;
+
+		while(i<length) {
+			if(i + addition > length){
+				addition = length - i;
+			}
+			result += untyped __js__("String.fromCharCode.apply(null, bufferView.subarray(i, i + addition))");
+			i += addition;
+		}
+
+		return result;
+	}
+	#end
+
 
 	public override function getText (id:String):String {
 
@@ -400,7 +420,11 @@ class DefaultAssetLibrary extends AssetLibrary {
 		var bytes = loader.bytes;
 
 		if (bytes != null) {
-
+			#if js
+			if(id.substr(id.length - 4) == ".dat") {
+				return getStringFromBytes(bytes);
+			}
+			#end
 			return bytes.getString (0, bytes.length);
 
 		} else {
