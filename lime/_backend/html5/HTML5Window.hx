@@ -211,7 +211,7 @@ class HTML5Window {
 
 			}
 
-			var events = [ "mousedown", "mouseenter", "mouseleave", "mousemove", "mouseup", "wheel" ];
+			var events = [ "mousedown", "mouseenter", "mouseleave", "mousemove", "mouseup", "wheel", "contextmenu" ];
 
 			for (event in events) {
 
@@ -356,7 +356,7 @@ class HTML5Window {
 
 					parent.onEnter.dispatch ();
 
-				case "mouseleave":
+				case "mouseleave" | "contextmenu":
 
 					parent.onLeave.dispatch ();
 
