@@ -18,8 +18,8 @@ typedef Stage = Dynamic;
 
 
 class Window {
-	
-	
+
+
 	public var application (default, null):Application;
 	public var borderless (get, set):Bool;
 	public var config:WindowConfig;
@@ -63,7 +63,7 @@ class Window {
 	public var width (get, set):Int;
 	public var x (get, set):Int;
 	public var y (get, set):Int;
-	
+
 	@:noCompletion private var backend:WindowBackend;
 	@:noCompletion private var __borderless:Bool;
 	@:noCompletion private var __originalWidth:Int;
@@ -77,12 +77,12 @@ class Window {
 	@:noCompletion private var __width:Int;
 	@:noCompletion private var __x:Int;
 	@:noCompletion private var __y:Int;
-	
-	
+
+
 	public function new (config:WindowConfig = null) {
-		
+
 		this.config = config;
-		
+
 		__width = 0;
 		__height = 0;
 		__fullscreen = false;
@@ -91,9 +91,9 @@ class Window {
 		__y = 0;
 		__title = "";
 		id = -1;
-		
+
 		if (config != null) {
-			
+
 			if (Reflect.hasField (config, "width")) {
 				__width = config.width;
 				__originalWidth = config.width;
@@ -108,38 +108,39 @@ class Window {
 			if (Reflect.hasField (config, "borderless")) __borderless = config.borderless;
 			if (Reflect.hasField (config, "resizable")) __resizable = config.resizable;
 			if (Reflect.hasField (config, "title")) __title = config.title;
-			
+
 		}
-		
+
+		#if !neko
 		backend = new WindowBackend (this);
-		
+		#end
 	}
-	
-	
+
+
 	public function alert (message:String = null, title:String = null):Void {
-		
+
 		backend.alert (message, title);
-		
+
 	}
-	
-	
+
+
 	public function close ():Void {
-		
+
 		backend.close ();
-		
+
 	}
-	
-	
+
+
 	public function create (application:Application):Void {
-		
+
 		this.application = application;
-		
+
 		backend.create (application);
-		
+
 		#if windows
-		
+
 		var mappings = [
-			
+
 			"8f0e1200000000000000504944564944,Acme,platform:Windows,x:b2,a:b0,b:b1,y:b3,back:b8,start:b9,dpleft:h0.8,dpdown:h0.4,dpright:h0.2,dpup:h0.1,leftshoulder:b4,lefttrigger:b5,rightshoulder:b6,righttrigger:b7,leftstick:b10,rightstick:b11,leftx:a0,lefty:a1,rightx:a3,righty:a2",
 			"341a3608000000000000504944564944,Afterglow PS3 Controller,a:b1,b:b2,back:b8,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,guide:b12,leftshoulder:b4,leftstick:b10,lefttrigger:b6,leftx:a0,lefty:a1,rightshoulder:b5,rightstick:b11,righttrigger:b7,rightx:a2,righty:a3,start:b9,x:b0,y:b3,platform:Windows",
 			"ffff0000000000000000504944564944,GameStop Gamepad,a:b0,b:b1,back:b8,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,guide:,leftshoulder:b4,leftstick:b10,lefttrigger:b6,leftx:a0,lefty:a1,rightshoulder:b5,rightstick:b11,righttrigger:b7,rightx:a2,righty:a3,start:b9,x:b2,y:b3,platform:Windows",
@@ -165,15 +166,15 @@ class Window {
 			"a3060cff000000000000504944564944,Saitek P2500,a:b2,b:b3,y:b1,x:b0,start:b4,guide:b10,back:b5,leftstick:b8,rightstick:b9,leftshoulder:b6,rightshoulder:b7,dpup:h0.1,dpleft:h0.8,dpdown:h0.4,dpright:h0.2,leftx:a0,lefty:a1,rightx:a2,righty:a3,platform:Windows",
 			"8f0e0300000000000000504944564944,Trust GTX 28,a:b2,b:b1,y:b0,x:b3,start:b9,back:b8,leftstick:b10,rightstick:b11,leftshoulder:b4,rightshoulder:b5,dpup:h0.1,dpleft:h0.8,dpdown:h0.4,dpright:h0.2,leftx:a0,lefty:a1,rightx:a2,righty:a3,lefttrigger:b6,righttrigger:b7,platform:Windows",
 			"4f0415b3000000000000504944564944,Thrustmaster Dual Analog 3.2,platform:Windows,x:b1,a:b0,b:b2,y:b3,back:b8,start:b9,dpleft:h0.8,dpdown:h0.4,dpright:h0.2,dpup:h0.1,leftshoulder:b4,lefttrigger:b5,rightshoulder:b6,righttrigger:b7,leftstick:b10,rightstick:b11,leftx:a0,lefty:a1,rightx:a2,righty:a3"
-			
+
 		];
-		
+
 		Gamepad.addMappings (mappings);
-		
+
 		#elseif mac
-		
+
 		var mappings = [
-			
+
 			"0500000047532047616d657061640000,GameStop Gamepad,a:b0,b:b1,back:b8,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,guide:,leftshoulder:b4,leftstick:b10,lefttrigger:b6,leftx:a0,lefty:a1,rightshoulder:b5,rightstick:b11,righttrigger:b7,rightx:a2,righty:a3,start:b9,x:b2,y:b3,platform:Mac OS X",
 			"6d0400000000000016c2000000000000,Logitech F310 Gamepad (DInput),a:b1,b:b2,back:b8,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,leftshoulder:b4,leftstick:b10,lefttrigger:b6,leftx:a0,lefty:a1,rightshoulder:b5,rightstick:b11,righttrigger:b7,rightx:a2,righty:a3,start:b9,x:b0,y:b3,platform:Mac OS X",
 			"6d0400000000000018c2000000000000,Logitech F510 Gamepad (DInput),a:b1,b:b2,back:b8,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,leftshoulder:b4,leftstick:b10,lefttrigger:b6,leftx:a0,lefty:a1,rightshoulder:b5,rightstick:b11,righttrigger:b7,rightx:a2,righty:a3,start:b9,x:b0,y:b3,platform:Mac OS X",
@@ -189,15 +190,15 @@ class Window {
 			"79000000000000000600000000000000,G-Shark GP-702,a:b2,b:b1,x:b3,y:b0,back:b8,start:b9,leftstick:b10,rightstick:b11,leftshoulder:b4,rightshoulder:b5,dpup:h0.1,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,leftx:a0,lefty:a1,rightx:a3,righty:a4,lefttrigger:b6,righttrigger:b7,platform:Mac OS X",
 			"4f0400000000000015b3000000000000,Thrustmaster Dual Analog 3.2,platform:Mac OS X,x:b1,a:b0,b:b2,y:b3,back:b8,start:b9,dpleft:h0.8,dpdown:h0.4,dpright:h0.2,dpup:h0.1,leftshoulder:b4,lefttrigger:b5,rightshoulder:b6,righttrigger:b7,leftstick:b10,rightstick:b11,leftx:a0,lefty:a1,rightx:a2,righty:a3",
 			"AD1B00000000000001F9000000000000,Gamestop BB-070 X360 Controller,a:b0,b:b1,back:b9,dpdown:b12,dpleft:b13,dpright:b14,dpup:b11,guide:b10,leftshoulder:b4,leftstick:b6,lefttrigger:a2,leftx:a0,lefty:a1,rightshoulder:b5,rightstick:b7,righttrigger:a5,rightx:a3,righty:a4,start:b8,x:b2,y:b3,platform:Mac OS X"
-			
+
 		];
-		
+
 		Gamepad.addMappings (mappings);
-		
+
 		#elseif linux
-		
+
 		var mappings = [
-			
+
 			"0500000047532047616d657061640000,GameStop Gamepad,a:b0,b:b1,back:b8,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,guide:,leftshoulder:b4,leftstick:b10,lefttrigger:b6,leftx:a0,lefty:a1,rightshoulder:b5,rightstick:b11,righttrigger:b7,rightx:a2,righty:a3,start:b9,x:b2,y:b3,platform:Linux",
 			"03000000ba2200002010000001010000,Jess Technology USB Game Controller,a:b2,b:b1,back:b8,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,guide:,leftshoulder:b4,lefttrigger:b6,leftx:a0,lefty:a1,rightshoulder:b5,righttrigger:b7,rightx:a3,righty:a2,start:b9,x:b3,y:b0,platform:Linux",
 			"030000006d04000019c2000010010000,Logitech Cordless RumblePad 2,a:b1,b:b2,back:b8,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,guide:,leftshoulder:b4,leftstick:b10,lefttrigger:b6,leftx:a0,lefty:a1,rightshoulder:b5,rightstick:b11,righttrigger:b7,rightx:a2,righty:a3,start:b9,x:b0,y:b3,platform:Linux",
@@ -244,114 +245,114 @@ class Window {
 			"030000008916000001fd000024010000,Razer Onza Classic Edition,platform:Linux,x:b2,a:b0,b:b1,y:b3,back:b6,guide:b8,start:b7,dpleft:b11,dpdown:b14,dpright:b12,dpup:b13,leftshoulder:b4,lefttrigger:a2,rightshoulder:b5,righttrigger:a5,leftstick:b9,rightstick:b10,leftx:a0,lefty:a1,rightx:a3,righty:a4",
 			"030000005e040000d102000001010000,Microsoft X-Box One pad,platform:Linux,x:b2,a:b0,b:b1,y:b3,back:b6,guide:b8,start:b7,dpleft:h0.8,dpdown:h0.0,dpdown:h0.4,dpright:h0.0,dpright:h0.2,dpup:h0.0,dpup:h0.1,leftshoulder:h0.0,leftshoulder:b4,lefttrigger:a2,rightshoulder:b5,righttrigger:a5,leftstick:b9,rightstick:b10,leftx:a0,lefty:a1,rightx:a3,righty:a4",
 			"03000000790000001100000010010000,RetroLink Saturn Classic Controller,platform:Linux,x:b3,a:b0,b:b1,y:b4,back:b5,guide:b2,start:b8,leftshoulder:b6,rightshoulder:b7,leftx:a0,lefty:a1"
-			
+
 		];
-		
+
 		Gamepad.addMappings (mappings);
 
 		#elseif (ios || tvos)
-		
+
 		var mappings = [
-			
+
 		    "4d466947616d65706164010000000000,MFi Extended Gamepad,a:b0,b:b1,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,leftshoulder:b4,lefttrigger:a2,leftx:a0,lefty:a1,rightshoulder:b5,righttrigger:a5,rightx:a3,righty:a4,start:b6,x:b2,y:b3,",
 		    "4d466947616d65706164020000000000,MFi Gamepad,a:b0,b:b1,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,leftshoulder:b4,rightshoulder:b5,start:b6,x:b2,y:b3,",
 		    "4d466947616d65706164030000000000,MFi Apple TV Remote,a:b0,b:b1,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,leftshoulder:b4,rightshoulder:b5,start:b6,x:b2,y:b3,",
-			
+
 		];
-		
+
 		Gamepad.addMappings (mappings);
-		
+
 		#end
-		
+
 		if (renderer != null) {
-			
+
 			renderer.create ();
-			
+
 		}
-		
+
 	}
-	
-	
+
+
 	public function focus ():Void {
-		
+
 		backend.focus ();
-		
+
 	}
-	
-	
+
+
 	public function move (x:Int, y:Int):Void {
-		
+
 		backend.move (x, y);
-		
+
 		__x = x;
 		__y = y;
-		
+
 	}
-	
-	
+
+
 	public function resize (width:Int, height:Int):Void {
-		
+
 		__width = width;
 		__height = height;
-		
+
 		backend.resize (width, height);
 
 	}
-	
+
 	public function resizeViewport(width:Int, height:Int):Void {
 
 		backend.resizeViewport(width, height);
 
 	}
 
-	
+
 	public function setIcon (image:Image):Void {
-		
+
 		if (image == null) {
-			
+
 			return;
-			
+
 		}
-		
+
 		backend.setIcon (image);
-		
+
 	}
-	
-	
+
+
 	public function toString ():String {
-		
+
 		return "[object Window]";
-		
+
 	}
-	
-	
-	
-	
+
+
+
+
 	// Get & Set Methods
-	
-	
-	
-	
+
+
+
+
 	@:noCompletion private function get_display ():Display {
-		
+
 		return backend.getDisplay ();
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private inline function get_borderless ():Bool {
-		
+
 		return __borderless;
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private function set_borderless (value:Bool):Bool {
-		
+
 		return __borderless = backend.setBorderless (value);
-		
+
 	}
-	
+
 	@:noCompletion private function get_originalWidth(): Int {
 
 		return __originalWidth;
@@ -364,85 +365,85 @@ class Window {
 
 	}
 
-	
+
 	@:noCompletion private inline function get_enableTextEvents ():Bool {
-		
+
 		return backend.getEnableTextEvents ();
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private inline function set_enableTextEvents (value:Bool):Bool {
-		
+
 		return backend.setEnableTextEvents (value);
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private inline function get_fullscreen ():Bool {
-		
+
 		return __fullscreen;
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private function set_fullscreen (value:Bool):Bool {
-		
+
 		return __fullscreen = backend.setFullscreen (value);
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private inline function get_height ():Int {
-		
+
 		return __height;
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private function set_height (value:Int):Int {
-		
+
 		resize (__width, value);
 		return __height;
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private inline function get_minimized ():Bool {
-		
+
 		return __minimized;
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private function set_minimized (value:Bool):Bool {
-		
+
 		return __minimized = backend.setMinimized (value);
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private inline function get_resizable ():Bool {
-		
+
 		return __resizable;
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private function set_resizable (value:Bool):Bool {
-		
+
 		__resizable = backend.setResizable (value);
 		return __resizable;
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private inline function get_scale ():Float {
-		
+
 		return __scale;
-		
+
 	}
-	
+
 	private inline function get_screenWidth ():Int {
 
 		return backend.getScreenWidth();
@@ -454,73 +455,71 @@ class Window {
 		return backend.getScreenHeight();
 
 	}
-	
+
 	@:noCompletion private inline function get_title ():String {
-		
+
 		return __title;
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private function set_title (value:String):String {
-		
+
 		return __title = backend.setTitle (__title);
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private inline function get_width ():Int {
-		
+
 		return __width;
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private function set_width (value:Int):Int {
-		
+
 		resize (value, __height);
 		return __width;
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private inline function get_x ():Int {
-		
+
 		return __x;
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private function set_x (value:Int):Int {
-		
+
 		move (value, __y);
 		return __x;
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private inline function get_y ():Int {
-		
+
 		return __y;
-		
+
 	}
-	
-	
+
+
 	@:noCompletion private function set_y (value:Int):Int {
-		
+
 		move (__x, value);
 		return __y;
-		
+
 	}
-	
-	
+
+
 }
 
 
-#if flash
-@:noCompletion private typedef WindowBackend = lime._backend.flash.FlashWindow;
-#elseif (js && html5)
+#if (js && html5)
 @:noCompletion private typedef WindowBackend = lime._backend.html5.HTML5Window;
 #else
-@:noCompletion private typedef WindowBackend = lime._backend.native.NativeWindow;
+@:noCompletion private typedef WindowBackend = Dynamic;
 #end
