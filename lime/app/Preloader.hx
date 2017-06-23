@@ -104,6 +104,7 @@ class Preloader #if flash extends Sprite #end {
 					if (!loaders.exists (url)) {
 						
 						var loader = new HTTPRequest ();
+						loader.responseType = js.html.XMLHttpRequestResponseType.TEXT;
 						loaders.set (url, loader);
 						total++;
 						

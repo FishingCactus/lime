@@ -259,7 +259,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 
 		}
 
-		var bytes = loader.bytes;
+		var bytes = loader.response.bytes;
 
 		if (bytes != null) {
 
@@ -417,14 +417,13 @@ class DefaultAssetLibrary extends AssetLibrary {
 
 		}
 
-		var bytes = loader.bytes;
+		if(loader.response.text != null) {
+			return loader.response.text;
+		}
+
+		var bytes = loader.response.bytes;
 
 		if (bytes != null) {
-			#if js
-			if(id.substr(id.length - 4) == ".dat") {
-				return getStringFromBytes(bytes);
-			}
-			#end
 			return bytes.getString (0, bytes.length);
 
 		} else {
@@ -543,45 +542,15 @@ class DefaultAssetLibrary extends AssetLibrary {
 
 		var promise = new Promise<Bytes> ();
 
-		#if flash
-
-		if (path.exists (id)) {
-
-			var loader = new URLLoader ();
-			loader.addEventListener (Event.COMPLETE, function (event:Event) {
-
-				var bytes = Bytes.ofString (event.currentTarget.data);
-				promise.complete (bytes);
-
-			});
-			loader.addEventListener (ProgressEvent.PROGRESS, function (event) {
-
-				if (event.bytesTotal == 0) {
-
-					promise.progress (0);
-
-				} else {
-
-					promise.progress (event.bytesLoaded / event.bytesTotal);
-
-				}
-
-			});
-			loader.addEventListener (IOErrorEvent.IO_ERROR, promise.error);
-			loader.load (new URLRequest (path.get (id)));
-
-		} else {
-
-			promise.complete (getBytes (id));
-
-		}
-
-		#elseif html5
+		#if html5
 
 		if (path.exists (id)) {
 
 			var request = new HTTPRequest ();
-			promise.completeWith (request.load (path.get (id) + "?" + Assets.cache.version));
+			var future = request.load (path.get (id) + "?" + Assets.cache.version);
+			future.onProgress (function (progress) promise.progress (progress));
+			future.onError (function (msg) promise.error (msg));
+			future.onComplete (function (response) promise.complete (response.bytes));
 
 		} else {
 
@@ -591,7 +560,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 
 		#else
 
-		promise.completeWith (new Future<Bytes> (function () return getBytes (id)));
+		promise.completeWith (new Future<HTTPResponse> (function () return getBytes (id)));
 
 		#end
 
@@ -604,40 +573,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 
 		var promise = new Promise<Image> ();
 
-		#if flash
-
-		if (path.exists (id)) {
-
-			var loader = new Loader ();
-			loader.contentLoaderInfo.addEventListener (Event.COMPLETE, function (event:Event) {
-
-				var bitmapData = cast (event.currentTarget.content, Bitmap).bitmapData;
-				promise.complete (Image.fromBitmapData (bitmapData));
-
-			});
-			loader.contentLoaderInfo.addEventListener (ProgressEvent.PROGRESS, function (event) {
-
-				if (event.bytesTotal == 0) {
-
-					promise.progress (0);
-
-				} else {
-
-					promise.progress (event.bytesLoaded / event.bytesTotal);
-
-				}
-
-			});
-			loader.contentLoaderInfo.addEventListener (IOErrorEvent.IO_ERROR, promise.error);
-			loader.load (new URLRequest (path.get (id)));
-
-		} else {
-
-			promise.complete (getImage (id));
-
-		}
-
-		#elseif html5
+		#if html5
 
 		if (path.exists (id)) {
 
@@ -744,7 +680,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 			var future = request.load (path.get (id) + "?" + Assets.cache.version);
 			future.onProgress (function (progress) promise.progress (progress));
 			future.onError (function (msg) promise.error (msg));
-			future.onComplete (function (bytes) promise.complete (bytes.getString (0, bytes.length)));
+			future.onComplete (function (response) promise.complete (response.text));
 
 		} else {
 
