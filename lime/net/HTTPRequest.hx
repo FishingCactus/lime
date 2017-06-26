@@ -14,24 +14,32 @@ import js.html.XMLHttpRequest;
 #end
 
 
+typedef HTTPResponse = {
+	var bytes:Bytes;
+	var text:String;
+}
+
 class HTTPRequest {
 	
 	
-	public var bytes:Bytes;
+	public var response:HTTPResponse = {bytes:null, text:null};
 	
 	private var bytesLoaded:Int;
 	private var bytesTotal:Int;
-	private var promise:Promise<Bytes>;
-	
+	private var promise:Promise<HTTPResponse>;
+
+	#if (js && html5)
+	public var responseType:js.html.XMLHttpRequestResponseType = ARRAYBUFFER;
+	#end
 	
 	public function new () {
 		
-		promise = new Promise<Bytes> ();
+		promise = new Promise<HTTPResponse> ();
 		
 	}
 	
 	
-	public function load (url:String):Future<Bytes> {
+	public function load (url:String):Future<HTTPResponse> {
 		
 		bytesLoaded = 0;
 		bytesTotal = 0;
@@ -50,9 +58,13 @@ class HTTPRequest {
 			
 			if (request.status != null && request.status >= 200 && request.status <= 400) {
 				
-				bytes = Bytes.ofData (request.response);
-				promise.complete (bytes);
-				
+				if(request.responseType == ARRAYBUFFER) {
+					response.bytes = Bytes.ofData (request.response);
+				}
+				else {
+					response.text = request.response;
+				}
+				promise.complete (response);
 			} else {
 				
 				promise.error (request.status);
@@ -62,7 +74,7 @@ class HTTPRequest {
 		};
 		
 		request.open ("GET", url, true);
-		request.responseType = ARRAYBUFFER;
+		request.responseType = responseType;
 		request.send ("");
 		
 		#else
@@ -82,7 +94,7 @@ class HTTPRequest {
 				}
 				
 				var bytes = Bytes.readFile (path);
-				promise.complete (bytes);
+				promise.complete ({bytes:bytes, text:null});
 				
 			});
 			worker.run ();
@@ -172,10 +184,10 @@ class HTTPRequest {
 	
 	private function curl_onWrite (output:Bytes, size:Int, nmemb:Int):Int {
 		
-		var cacheBytes = bytes;
-		bytes = Bytes.alloc (bytes.length + output.length);
-		bytes.blit (0, cacheBytes, 0, cacheBytes.length);
-		bytes.blit (cacheBytes.length, output, 0, output.length);
+		var cacheBytes = response.bytes;
+		response.bytes = Bytes.alloc (response.bytes.length + output.length);
+		response.bytes.blit (0, cacheBytes, 0, cacheBytes.length);
+		response.bytes.blit (cacheBytes.length, output, 0, output.length);
 		
 		return size * nmemb;
 		
