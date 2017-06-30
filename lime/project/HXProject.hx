@@ -950,7 +950,7 @@ class HXProject {
 		}
 
 
-		#if (lime && !lime_legacy)
+        #if (lime && !lime_legacy)
 		// now sort all gathered font-assets
 
 		ArraySort.sort(fontAssets, function (a:Dynamic, b:Dynamic): Int {
@@ -961,27 +961,34 @@ class HXProject {
 
 		// now shorten the font names that are too long if necessary
 		var i:Int = 0;
+		LogHelper.info("-------------------------------------------------------");
 		for (assetHolder in fontAssets) {
 		try {
 				var maxLength:Int = 21;
+				var fontId:String = StringTools.replace(assetHolder.font.name, ' ', '');
+
+                assetHolder.embeddedAsset.fontId = fontId;
+				LogHelper.info("set fontId: " + assetHolder.font.name + " --> " + fontId);
+
 				if (assetHolder.font.name.length <= maxLength)
 				{
-					assetHolder.embeddedAsset.fontName = assetHolder.font.name;	
+					assetHolder.embeddedAsset.fontName = assetHolder.font.name;
 				}
-				else 
+				else
 				{
-					// replace fontname since IE11 can not handle FontFamilies 
+					// replace fontname since IE11 can not handle FontFamilies
 					// that are longer than 31 characters!
 					// during build process that max-length is getting even shorter (21)
 					// prefixing with int-number to have unique name
 					// add those fontfamily-names to the  fontaliases of the main class
-					assetHolder.embeddedAsset.fontName = (i + '_' + StringTools.replace(assetHolder.font.name, ' ', '')).substr(0, maxLength);
+					assetHolder.embeddedAsset.fontName = (i + '_' + fontId).substr(0, maxLength);
 					i++;
 				}
-				
-				
+
+
 			} catch (e:Dynamic) {}
 		}
+		LogHelper.info("-------------------------------------------------------");
 		
  		#end //(lime && !lime_legacy)
 
