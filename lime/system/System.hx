@@ -204,20 +204,25 @@ class System {
 	
 	public static inline function getTimer ():Int {
 		
-		#if flash
-		return flash.Lib.getTimer ();
-		#elseif js
-		return untyped __js__ ( "Date.now ()" );
+		var result:Int;
+
+		#if js
+		result = untyped __js__ ( "Date.now ()" );
 		#elseif (!disable_cffi && !macro)
-		return cast lime_system_get_timer ();
+		result = cast lime_system_get_timer ();
 		#elseif cpp
-		return Std.int (untyped __global__.__time_stamp () * 1000);
+		result = Std.int (untyped __global__.__time_stamp () * 1000);
 		#elseif sys
-		return Std.int (Sys.time () * 1000);
+		result = Std.int (Sys.time () * 1000);
 		#else
-		return 0;
+		result = 0;
 		#end
 		
+		#if (dev && js)
+		result *= untyped $global.Tools.speedFactor;
+		#end
+
+		return result;
 	}
 	
 	
@@ -436,7 +441,12 @@ class System {
 	@:cffi private static function lime_system_get_timer ():Float;
 	#end
 	
-	
+	#if (dev && js)
+	public static function __init__ () {
+		untyped $global.Tools = $global.Tools || {};
+		untyped $global.Tools.speedFactor = 1.0;
+	}
+	#end
 }
 
 

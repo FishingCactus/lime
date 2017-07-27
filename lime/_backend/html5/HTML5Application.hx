@@ -341,7 +341,7 @@ class HTML5Application {
 
 		public static function logStatistics(threshold = 1) {
 			for(symbol_id in __lastUpdateMap.keys()) {
-				if ( __lastUpdateMap.get(symbol_id) < threshold * 150 ) {
+				if ( __lastUpdateMap.get(symbol_id) < threshold * 150) {
 					continue;
 				}
 				trace('__symbol $symbol_id: ${__lastUpdateMap.get(symbol_id)/150} / frame');
@@ -351,7 +351,11 @@ class HTML5Application {
 
 	private static function staticHandleApplicationEvent(timestamp:Float)
 	{
+		#if (dev && js)
+		instance.handleApplicationEvent(timestamp * untyped $global.Tools.speedFactor);
+		#else
 		instance.handleApplicationEvent(timestamp);
+		#end
 	}
 
 	private function handleKeyEvent (event:KeyboardEvent):Void {
