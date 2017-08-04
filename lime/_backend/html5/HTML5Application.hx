@@ -339,12 +339,12 @@ class HTML5Application {
 			__uploadCount = 0;
 		}
 
-		public static function logStatistics(threshold = 1) {
-			for(symbol_id in __lastUpdateMap.keys()) {
-				if ( __lastUpdateMap.get(symbol_id) < threshold * 150) {
+		public static function logStatistics(threshold = 0) {
+			for(profileId in __lastUpdateMap.keys()) {
+				if ( __lastUpdateMap.get(profileId) < threshold * 150) {
 					continue;
 				}
-				trace('__symbol $symbol_id: ${__lastUpdateMap.get(symbol_id)/150} / frame');
+				trace(' ${profileId} => ${__lastUpdateMap.get(profileId)/150} updates/frame');
 			}
 		}
 	#end
