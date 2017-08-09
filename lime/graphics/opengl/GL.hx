@@ -396,6 +396,11 @@ class GL {
 	private static var currentBoundTexture:Vector<GLTexture> = new Vector (8);
 	private static var textureStateCache:Map<GLTexture, TextureState> = new Map ();
 
+	#if profile
+		private static var textureCount = 0;
+		private static var totalTextureCount = 0;
+		private static var textureDataTable:Map<GLTexture, TextureData> = new Map ();
+	#end
 
 	public static inline function activeTexture (texture:Int):Void {
 
@@ -497,6 +502,12 @@ class GL {
 
 				textureStateCache.set (texture, new TextureState());
 
+				#if profile
+					var data = new TextureData ();
+					data.texture = texture;
+
+					textureDataTable.set (texture, data);
+				#end
 			}
 		}
 	}
@@ -825,9 +836,12 @@ class GL {
 
 	}
 
-
 	public static inline function createTexture ():GLTexture {
 
+		#if (profile)
+			++totalTextureCount;
+			++textureCount;
+		#end
 		#if (js && html5 && !display)
 		return context.createTexture ();
 		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
@@ -934,8 +948,13 @@ class GL {
 
 		textureStateCache.remove (texture);
 
+		#if (profile)
+			textureDataTable.remove (texture);
+			--textureCount;
+		#end
+
 		#if (js && html5 && !display)
-		context.deleteTexture (texture);
+			context.deleteTexture (texture);
 		#elseif ((cpp || neko || nodejs) && lime_opengl && !macro)
 		lime_gl_delete_texture (texture.id);
 		texture.invalidate ();
@@ -1803,6 +1822,13 @@ class GL {
 
 	public static inline function texImage2D (target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, pixels:ArrayBufferView):Void {
 
+		#if profile
+			var currentTexture = currentBoundTexture[currentActiveTexture];
+			var textureData = textureDataTable.get (currentTexture);
+			textureData.width = width;
+			textureData.height = height;
+		#end
+
 		#if (js && html5 && !display)
 		context.texImage2D (target, level, internalformat, width, height, border, format, type, pixels);
 		#elseif ((cpp || neko) && lime_opengl && !macro)
@@ -1816,6 +1842,13 @@ class GL {
 
 	#if (js && html5)
 		public static inline function texImage2DWeb (target:Int, level:Int, internalformat:Int, format:Int, type:Int, data:Dynamic):Void {
+
+			#if profile
+				var currentTexture = currentBoundTexture[currentActiveTexture];
+				var textureData = textureDataTable.get (currentTexture);
+				textureData.width = data.width;
+				textureData.height = data.height;
+			#end
 
 			context.texImage2D (target, level, internalformat, format, type, data);
 
@@ -2246,6 +2279,46 @@ class GL {
 
 	private static function get_version ():Int { return 2; }
 
+	#if profile
+		#if js
+			public static function __init__ () {
+				untyped $global.Profile = $global.Profile || {};
+				untyped $global.Profile.GL = {};
+				untyped $global.Profile.GL.logStatistics = logStatistics;
+				untyped $global.Profile.GL.logTextures = logTextures;
+			}
+		#end
+
+		public static function logStatistics () {
+			trace ('Textures:');
+			trace ('    current count: ${textureCount}; total since beginning: ${totalTextureCount}');
+
+			var byteCount = 0;
+
+			for (data in textureDataTable.iterator()) {
+				byteCount += data.byteCount;
+			}
+
+			trace ('    total byte count: $byteCount');
+		}
+
+		public static function logTextures () {
+			for (data in textureDataTable.iterator()) {
+				trace ('    $data');
+			}
+		}
+
+		public static function getTextureData (id:Int):TextureData {
+			for (data in textureDataTable.iterator()) {
+				if (data.id == id) {
+					return data;
+				}
+			}
+
+			return null;
+		}
+
+	#end
 
 	#if ((cpp || neko || nodejs) && lime_opengl && !macro)
 	@:cffi private static function lime_gl_active_texture (texture:Int):Void;
@@ -2387,3 +2460,29 @@ class GL {
 }
 
 private typedef TextureState = Map<Int, Int>;
+
+#if profile
+	private class TextureData {
+		private static var count:Int = 0;
+
+		public var id:Int;
+		public var texture:GLTexture;
+		public var width:Int = 0;
+		public var height:Int = 0;
+		public var format:Int = 0;
+		public var byteCount (get,never):Int;
+
+		public function new () {
+			id = count++;
+		}
+
+		public function toString():String {
+			return '$id. w:$width; h:$height; bytecount:${byteCount}';
+		}
+
+		public function get_byteCount ():Int {
+			// :TODO: take format into account
+			return width * height * 4;
+		}
+	}
+#end
