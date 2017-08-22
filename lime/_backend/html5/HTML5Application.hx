@@ -292,14 +292,21 @@ class HTML5Application {
 				}
 
 				if(__countUpload == true) {
+					__totalUploadCount += __uploadCount;
 					__uploadFrameIndex++;
 					if(__uploadFrameIndex == 30) {
-						var cpf = __uploadCount / 30;
+						var cpf = __totalUploadCount / 30;
 						trace('BitmapData uploads/frame: ' + cpf);
 						__uploadFrameIndex = 0;
-						__uploadCount = 0;
+						__totalUploadCount = 0;
 					}
 				}
+
+				if(__uploadCount > __maxUploadCount){
+					__maxUploadCount = __uploadCount;
+				}
+
+				__uploadCount = 0;
 			#end
 			requestAnimFrameFunc.call(untyped __js__("window"), staticHandleApplicationEvent);
 		}
@@ -315,6 +322,8 @@ class HTML5Application {
 		private static var __countUpload = false;
 		private static var __uploadFrameIndex = 0;
 		private static var __uploadCount = 0;
+		private static var __totalUploadCount = 0;
+		private static var __maxUploadCount = 0;
 
 		public static function __init__ () {
 			untyped $global.Profile = $global.Profile || {};
@@ -324,6 +333,12 @@ class HTML5Application {
 
 			untyped $global.Profile.BitmapDataUpload = {};
 			untyped $global.Profile.BitmapDataUpload.count = countUpload;
+			untyped $global.Profile.BitmapDataUpload.logStatistics= function() {
+				trace("Maximum Bitmap uploads per frame : " + __maxUploadCount);
+			};
+			untyped $global.Profile.BitmapDataUpload.reset = function() {
+				__maxUploadCount = 0;
+			};
 		}
 
 		public static function countUpdate(value) {
