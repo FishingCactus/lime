@@ -566,8 +566,8 @@ class HTML5Window {
 					var container_height = height;
 					if ( stage != null  ) {
 						if( stage.scaleMode != StageScaleMode.NO_SCALE ) {
-							width = Std.int(stage.stageWidth * stage.scaleX);
-							height = Std.int(stage.stageHeight * stage.scaleY);
+							width = Math.ceil(stage.stageWidth * stage.scaleX);
+							height = Math.ceil(stage.stageHeight * stage.scaleY);
 							parent.__width = width;
 							parent.__height = height;
 						}
