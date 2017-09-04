@@ -470,7 +470,7 @@ class Image {
 		buffer.__srcBitmapData = bitmapData;
 		return new Image (buffer);
 		#else
-		return bitmapData.image;
+		return Reflect.getProperty(bitmapData, "image");
 		#end
 
 	}
