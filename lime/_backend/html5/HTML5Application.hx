@@ -318,6 +318,7 @@ class HTML5Application {
 		public static var __updateCalls = 0;
 		public static var __updateMap = new Map<String, Int>();
 		public static var __lastUpdateMap = new Map<String, Int>();
+		public static var __uploadMap = new Map<String, Int>();
 
 		private static var __countUpload = false;
 		private static var __uploadFrameIndex = 0;
@@ -333,11 +334,19 @@ class HTML5Application {
 
 			untyped $global.Profile.BitmapDataUpload = {};
 			untyped $global.Profile.BitmapDataUpload.count = countUpload;
-			untyped $global.Profile.BitmapDataUpload.logStatistics= function() {
+			untyped $global.Profile.BitmapDataUpload.logStatistics= function(threshold:Int = 0) {
 				trace("Maximum Bitmap uploads per frame : " + __maxUploadCount);
+                for( id in __uploadMap.keys () ) {
+                    var value = __uploadMap[id];
+                    if(value < threshold) {
+                        continue;
+                    }
+                    trace (' ${id} => uploaded x${value}');
+                }
 			};
 			untyped $global.Profile.BitmapDataUpload.reset = function() {
 				__maxUploadCount = 0;
+                __uploadMap = new Map();
 			};
 		}
 
