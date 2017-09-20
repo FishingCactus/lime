@@ -292,10 +292,6 @@ class Window {
 
 	public function resize (width:Int, height:Int):Void {
 
-		if ( __width == width || __height == height ) {
-			return;
-		}
-
 		__width = width;
 		__height = height;
 
