@@ -638,6 +638,12 @@ class ProjectXMLParser extends HXProject {
 					var asset = new Asset (path + childPath, targetPath + childTargetPath, childType, childEmbed);
 					asset.id = id;
 					
+					if(childElement.has.start && childElement.has.duration)
+						asset.data = {
+							start:childElement.att.start,
+							duration:childElement.att.duration
+							};
+					
 					if (childGlyphs != null) {
 						
 						asset.glyphs = childGlyphs;
