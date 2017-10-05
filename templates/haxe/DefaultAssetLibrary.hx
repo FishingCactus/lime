@@ -9,7 +9,7 @@ import lime.app.Promise;
 import lime.audio.AudioSource;
 import lime.audio.openal.AL;
 import lime.audio.AudioBuffer;
-import lime.audio.AudioParameters;
+import lime.audio.ExtraSoundOptions;
 import lime.graphics.Image;
 import lime.net.HTTPRequest;
 import lime.system.CFFI;
@@ -47,7 +47,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 
 	#if html5
 		public var fontData( default, null ) = new Map<String, {var ascent:Float; var descent:Float;}>();
-		public var soundData:Map<String, AudioParameters> = new Map<String, AudioParameters>();
+		public var extraSoundOptions:Map<String, ExtraSoundOptions> = new Map<String, ExtraSoundOptions>();
 	#end
 
 	public function new () {
@@ -70,7 +70,12 @@ class DefaultAssetLibrary extends AssetLibrary {
 
 		::if (assets != null)::
 		::foreach assets::::if (type == "sound")::
-		soundData.set( '::sourcePath::', new AudioParameters(::data.start::, ::data.duration::));::end::
+		extraSoundOptions.set( '::sourcePath::', new ExtraSoundOptions(::data.start::, ::data.duration::));::end::
+		::end::::end::
+
+		::if (assets != null)::
+		::foreach assets::::if (type == "music")::
+		extraSoundOptions.set( '::sourcePath::', new ExtraSoundOptions(::data.start::, ::data.duration::));::end::
 		::end::::end::
 		#end
 
@@ -391,8 +396,8 @@ class DefaultAssetLibrary extends AssetLibrary {
 
 	}
 
-	public override function getSoundData(id:String):AudioParameters {
-		return soundData.get(id);
+	public override function getExtraSoundOptions(id:String):ExtraSoundOptions {
+		return extraSoundOptions.get(id);
 	}
 
 	#if js

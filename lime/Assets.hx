@@ -10,7 +10,7 @@ import lime.app.Event;
 import lime.app.Promise;
 import lime.app.Future;
 import lime.audio.AudioBuffer;
-import lime.audio.AudioParameters;
+import lime.audio.ExtraSoundOptions;
 import lime.graphics.Image;
 import lime.text.Font;
 import lime.utils.Bytes;
@@ -44,7 +44,7 @@ class Assets {
 	
 	private static var initialized = false;
 
-	public static var soundsParameters:Map<String,AudioParameters> = new Map <String, AudioParameters> ();
+	public static var extraSoundOptions:Map<String,ExtraSoundOptions> = new Map <String, ExtraSoundOptions> ();
 	
 	
 	public static function exists (id:String, type:AssetType = null):Bool {
@@ -339,7 +339,7 @@ class Assets {
 		
 	}
 
-	public static function getSoundData(id:String):AudioParameters {
+	public static function getExtraSoundOptions(id:String):ExtraSoundOptions {
 		initialize ();
 		
 		#if (tools && !display)
@@ -351,7 +351,7 @@ class Assets {
 		if (library != null) {
 			
 			if (library.exists (symbolName, null)) {
-				return library.getSoundData (symbolName);
+				return library.getExtraSoundOptions (symbolName);
 				
 			} else {
 				
@@ -972,7 +972,7 @@ class AssetLibrary {
 		
 	}
 
-	public function getSoundData(id:String):AudioParameters {
+	public function getExtraSoundOptions(id:String):ExtraSoundOptions {
 
 		return null;
 	}
