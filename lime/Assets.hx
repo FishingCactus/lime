@@ -10,6 +10,7 @@ import lime.app.Event;
 import lime.app.Promise;
 import lime.app.Future;
 import lime.audio.AudioBuffer;
+import lime.audio.AudioParameters;
 import lime.graphics.Image;
 import lime.text.Font;
 import lime.utils.Bytes;
@@ -42,6 +43,8 @@ class Assets {
 	public static var onChange = new Event<Void->Void> ();
 	
 	private static var initialized = false;
+
+	public static var soundsParameters:Map<String,AudioParameters> = new Map <String, AudioParameters> ();
 	
 	
 	public static function exists (id:String, type:AssetType = null):Bool {
@@ -333,6 +336,38 @@ class Assets {
 		}
 		
 		return libraries.get (name);
+		
+	}
+
+	public static function getSoundData(id:String):AudioParameters {
+		initialize ();
+		
+		#if (tools && !display)
+		
+		var libraryName = id.substring (0, id.indexOf (":"));
+		var symbolName = id.substr (id.indexOf (":") + 1);
+		var library = getLibrary (libraryName);
+		
+		if (library != null) {
+			
+			if (library.exists (symbolName, null)) {
+				return library.getSoundData (symbolName);
+				
+			} else {
+				
+				trace ("[Assets] There is no asset with an ID of \"" + id + "\"");
+				
+			}
+			
+		} else {
+			
+			trace ("[Assets] There is no asset library named \"" + libraryName + "\"");
+			
+		}
+		
+		#end
+		
+		return null;
 		
 	}
 	
@@ -935,6 +970,11 @@ class AssetLibrary {
 		
 		return null;
 		
+	}
+
+	public function getSoundData(id:String):AudioParameters {
+
+		return null;
 	}
 	
 	
