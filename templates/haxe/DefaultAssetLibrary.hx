@@ -69,14 +69,18 @@ class DefaultAssetLibrary extends AssetLibrary {
 		::end::::end::
 
 		::if (assets != null)::
-		::foreach assets::::if (type == "sound")::
-		extraSoundOptions.set( '::sourcePath::', new ExtraSoundOptions(::data.start::, ::data.duration::));::end::
-		::end::::end::
+			::foreach assets::
 
-		::if (assets != null)::
-		::foreach assets::::if (type == "music")::
-		extraSoundOptions.set( '::sourcePath::', new ExtraSoundOptions(::data.start::, ::data.duration::));::end::
-		::end::::end::
+				::if (type == "sound"):: 
+					extraSoundOptions.set( '::sourcePath::', new ExtraSoundOptions(::data.start::, ::data.duration::));
+				::else::
+					::if (type == "music")::
+					extraSoundOptions.set( '::sourcePath::', new ExtraSoundOptions(::data.start::, ::data.duration::));
+					::end::
+				::end::
+			::end::
+		::end::
+
 		#end
 
 		#if flash
