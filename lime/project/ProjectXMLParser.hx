@@ -638,8 +638,7 @@ class ProjectXMLParser extends HXProject {
 					var asset = new Asset (path + childPath, targetPath + childTargetPath, childType, childEmbed);
 					asset.id = id;
 					
-					if(childElement.has.name && 
-					(childElement.name == "sound" || childElement.name == "music") && 
+					if((childElement.name == "sound" || childElement.name == "music") && 
 					childElement.has.start && childElement.has.duration)
 						asset.data = {
 							start:childElement.att.start,

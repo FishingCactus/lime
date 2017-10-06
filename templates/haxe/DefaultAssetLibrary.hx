@@ -70,13 +70,10 @@ class DefaultAssetLibrary extends AssetLibrary {
 
 		::if (assets != null)::
 			::foreach assets::
-
 				::if (type == "sound"):: 
 					extraSoundOptions.set( '::sourcePath::', new ExtraSoundOptions(::data.start::, ::data.duration::));
-				::else::
-					::if (type == "music")::
+				::elseif (type == "music")::
 					extraSoundOptions.set( '::sourcePath::', new ExtraSoundOptions(::data.start::, ::data.duration::));
-					::end::
 				::end::
 			::end::
 		::end::
