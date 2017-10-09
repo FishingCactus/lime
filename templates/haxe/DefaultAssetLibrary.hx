@@ -405,9 +405,11 @@ class DefaultAssetLibrary extends AssetLibrary {
 
 	}
 
+	#if html5
 	public override function getExtraSoundOptions(id:String):ExtraSoundOptions {
 		return extraSoundOptions.get(id);
 	}
+	#end
 
 	#if js
 	public static function getStringFromBytes(bytes:Bytes) {
