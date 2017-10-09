@@ -467,21 +467,7 @@ class ProjectXMLParser extends HXProject {
 		var excludeChildElement = ".*|cvs|thumbs.db|desktop.ini|*.fla|*.hash";
 		var includeChildElement = "";
 		if (element.elements.hasNext ()) {
-			
-			var pathElement = path;
-			var targetPathElement = targetPath;
 
-			if (pathElement != "") {
-				
-				pathElement += "/";
-				
-			}
-			
-			if (targetPathElement != "") {
-				
-				targetPathElement += "/";
-				
-			}
 			for (childElement in element.elements) {
 				var isValid = isValidElement (childElement, "");
 				if (isValid) {
@@ -634,10 +620,9 @@ class ProjectXMLParser extends HXProject {
 					if (element.has.include) {
 						include = substitute (element.att.include);
 					} else {
-							include = "*";
+						include = "*";
 					}
 				}
-				
 				parseAssetsElementDirectory (path, targetPath, include, exclude, type, embed, glyphs, true);
 				
 			}
