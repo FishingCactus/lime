@@ -67,13 +67,14 @@ class DefaultAssetLibrary extends AssetLibrary {
 		::foreach assets::::if (type == "font")::
 		fontData.set( '::fontName::', {ascent: ::data.ascent:: / ::data.unitEm::, descent:::data.descent::/::data.unitEm::});::end::
 		::end::::end::
-
 		::if (assets != null)::
 			::foreach assets::
-				::if (type == "sound"):: 
-					extraSoundOptions.set( '::sourcePath::', new ExtraSoundOptions(::data.start::, ::data.duration::));
-				::elseif (type == "music")::
-					extraSoundOptions.set( '::sourcePath::', new ExtraSoundOptions(::data.start::, ::data.duration::));
+				::if (data.duration != null)::
+					::if (type == "sound")::
+							extraSoundOptions.set( '::id::', new ExtraSoundOptions(::data.start::, ::data.duration::));
+					::elseif (type == "music")::
+						extraSoundOptions.set( '::id::', new ExtraSoundOptions(::data.start::, ::data.duration::));
+					::end::
 				::end::
 			::end::
 		::end::
@@ -88,10 +89,21 @@ class DefaultAssetLibrary extends AssetLibrary {
 
 		#elseif html5
 
-		::if (assets != null)::var id;
-        ::foreach assets::id = "::id::";
+		::if (assets != null)::
+			var id;
+        	::foreach assets::
+				id = "::id::";
+				::if (type == "sound")::
+					id = '::sourcePath::';
+				::elseif (type == "music")::
+					id = '::sourcePath::';
+				::end::
         ::if (embed)::
-            ::if (type == "font")::className.set (id, __ASSET__::flatName::);::else::path.set (id,::if (resourceName == id)::id::else::"::resourceName::"::end::);::end::
+            ::if (type == "font")::
+				className.set (id, __ASSET__::flatName::);
+			::else::
+				path.set (id,::if (resourceName == id)::id::else::"::resourceName::"::end::);
+			::end::
         ::else::
             remoteAssets.set (id, ::if (resourceName == id)::id::else::"::resourceName::"::end::);
         ::end::

@@ -463,106 +463,10 @@ class ProjectXMLParser extends HXProject {
 			
 		}
 		
-		if (path == "" && (element.has.include || element.has.exclude || type != null )) {
-			
-			LogHelper.error ("In order to use 'include' or 'exclude' on <asset /> nodes, you must specify also specify a 'path' attribute");
-			return;
-			
-		} else if (!element.elements.hasNext ()) {
-			
-			// Empty element
-			
-			if (path == "") {
-				
-				return;
-				
-			}
-			
-			if (!FileSystem.exists (path)) {
-				
-				LogHelper.error ("Could not find asset path \"" + path + "\"");
-				return;
-				
-			}
-			
-			if (!FileSystem.isDirectory (path)) {
-				
-				var asset = new Asset (path, targetPath, type, embed);
-				
-				if (element.has.id) {
-					
-					asset.id = substitute (element.att.id);
-					
-				}
-				
-				if (glyphs != null) {
-					
-					asset.glyphs = glyphs;
-					
-				}
-				
-				assets.push (asset);
-				
-			} else {
-				
-				var exclude = ".*|cvs|thumbs.db|desktop.ini|*.fla|*.hash";
-				var include = "";
-				
-				if (element.has.exclude) {
-					
-					exclude += "|" + substitute (element.att.exclude);
-					
-				}
-				
-				if (element.has.include) {
-					
-					include = substitute (element.att.include);
-					
-				} else {
-					
-					//if (type == null) {
-						
-						include = "*";
-						
-					/*} else {
-						
-						switch (type) {
-							
-							case IMAGE:
-								
-								include = "*.jpg|*.jpeg|*.png|*.gif";
-							
-							case SOUND:
-								
-								include = "*.wav|*.ogg";
-							
-							case MUSIC:
-								
-								include = "*.mp2|*.mp3|*.ogg";
-							
-							case FONT:
-								
-								include = "*.otf|*.ttf";
-							
-							case TEMPLATE:
-								
-								include = "*";
-							
-							default:
-								
-								include = "*";
-							
-						}
-						
-					}*/
-					
-				}
-				
-				parseAssetsElementDirectory (path, targetPath, include, exclude, type, embed, glyphs, true);
-				
-			}
-			
-		} else {
+		var getAssetsFromDirectory = false;
+		var excludeChildElement = ".*|cvs|thumbs.db|desktop.ini|*.fla|*.hash";
+		var includeChildElement = "";
+		if (element.elements.hasNext ()) {
 			
 			if (path != "") {
 				
@@ -581,12 +485,29 @@ class ProjectXMLParser extends HXProject {
 				var isValid = isValidElement (childElement, "");
 				
 				if (isValid) {
-					
+
+					if(childElement.has.exclude || childElement.has.include)
+					{
+						if (childElement.has.exclude) {
+							excludeChildElement += "|" + substitute (childElement.att.exclude);
+						}
+						if (element.has.include) {
+							includeChildElement = substitute (childElement.att.include);
+						} else {
+							includeChildElement = "*";
+						}
+						getAssetsFromDirectory = true;
+						continue;
+					}
+
 					var childPath = substitute (childElement.has.name ? childElement.att.name : childElement.att.path);
 					var childTargetPath = childPath;
 					var childEmbed:Null<Bool> = embed;
 					var childType = type;
 					var childGlyphs = glyphs;
+
+					if ((childElement.has.exclude || childElement.has.include) && !filter (childPath, includeChildElement.split ("|"), excludeChildElement.split ("|")))
+						continue;
 					
 					if (childElement.has.rename) {
 						
@@ -639,11 +560,13 @@ class ProjectXMLParser extends HXProject {
 					asset.id = id;
 					
 					if((childElement.name == "sound" || childElement.name == "music") && 
-					childElement.has.start && childElement.has.duration)
+					childElement.has.start && childElement.has.duration) {
 						asset.data = {
 							start:childElement.att.start,
 							duration:childElement.att.duration
 							};
+					}
+						
 					
 					if (childGlyphs != null) {
 						
@@ -658,7 +581,73 @@ class ProjectXMLParser extends HXProject {
 			}
 			
 		}
-		
+
+
+		if (path == "" && (element.has.include || element.has.exclude || type != null )) {
+			
+			LogHelper.error ("In order to use 'include' or 'exclude' on <asset /> nodes, you must specify also specify a 'path' attribute");
+			return;
+			
+		} else if (!element.elements.hasNext () || getAssetsFromDirectory) {
+			
+			// Empty element
+			
+			if (path == "") {
+				
+				return;
+				
+			}
+			
+			if (!FileSystem.exists (path)) {
+				
+				LogHelper.error ("Could not find asset path \"" + path + "\"");
+				return;
+				
+			}
+			
+			if (!FileSystem.isDirectory (path)) {
+				
+				var asset = new Asset (path, targetPath, type, embed);
+				
+				if (element.has.id) {
+					
+					asset.id = substitute (element.att.id);
+					
+				}
+				
+				if (glyphs != null) {
+					
+					asset.glyphs = glyphs;
+					
+				}
+				
+				assets.push (asset);
+				
+			} else {
+				
+				var exclude = ".*|cvs|thumbs.db|desktop.ini|*.fla|*.hash";
+				var include = "";
+				
+				if(getAssetsFromDirectory) {
+					exclude = excludeChildElement;
+					include = includeChildElement;
+				}else
+				{
+					if (element.has.exclude) {
+						exclude += "|" + substitute (element.att.exclude);
+					}
+					if (element.has.include) {
+						include = substitute (element.att.include);
+					} else {
+							include = "*";
+					}
+				}
+				
+				parseAssetsElementDirectory (path, targetPath, include, exclude, type, embed, glyphs, true);
+				
+			}
+			
+		}
 	}
 	
 	
