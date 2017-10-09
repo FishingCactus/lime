@@ -550,12 +550,11 @@ class ProjectXMLParser extends HXProject {
 						id = substitute (childElement.att.id);
 						
 					}
-					else if (childElement.has.name) {
-						
-						id = substitute (childElement.att.name);
-						
+					var asset = new Asset (PathHelper.combine(path, childPath), PathHelper.combine(targetPath, childTargetPath), childType, childEmbed);
+					if ( id != "" ) {
+						asset.id = id;
 					}
-					var asset = new Asset (pathElement + childPath, targetPathElement + childTargetPath, childType, childEmbed);
+
 					if((childElement.name == "sound" || childElement.name == "music") && 
 					childElement.has.start && childElement.has.duration) {
 						asset.data = {

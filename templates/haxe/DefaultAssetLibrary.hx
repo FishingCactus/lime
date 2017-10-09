@@ -405,6 +405,10 @@ class DefaultAssetLibrary extends AssetLibrary {
 
 	}
 
+	public override function getPathMap():Map<String, String> {
+		return path;
+	}
+
 	#if html5
 	public override function getExtraSoundOptions(id:String):ExtraSoundOptions {
 		return extraSoundOptions.get(id);

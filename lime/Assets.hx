@@ -343,15 +343,12 @@ class Assets {
 		initialize ();
 		
 		#if (tools && !display)
-		
-		var libraryName = id.substring (0, id.indexOf (":"));
-		var symbolName = id.substr (id.indexOf (":") + 1);
-		var library = getLibrary (libraryName);
+		var library = getLibrary ("");
 		
 		if (library != null) {
 			
-			if (library.exists (symbolName, null)) {
-				return library.getExtraSoundOptions (symbolName);
+			if (library.exists (id, null)) {
+				return library.getExtraSoundOptions (id);
 				
 			} else {
 				
@@ -359,16 +356,34 @@ class Assets {
 				
 			}
 			
-		} else {
-			
-			trace ("[Assets] There is no asset library named \"" + libraryName + "\"");
-			
 		}
 		
 		#end
 		
 		return null;
 		
+	}
+
+	public static function getLogicalPath(id:String):String {
+		initialize ();
+		
+		#if (tools && !display)
+		var library = getLibrary ("");
+		
+		if (library != null) {
+			
+			var pathMap:Map<String,String> = library.getPathMap();
+			for(key in pathMap.keys()) {
+				if(pathMap[key] == id) {
+					return key;
+				}
+			}
+			return "";
+			
+		}
+		return "";
+		#end
+		return null;
 	}
 	
 	
@@ -970,6 +985,11 @@ class AssetLibrary {
 		
 		return null;
 		
+	}
+
+	public function getPathMap():Map<String,String> {
+
+		return null;
 	}
 
 	public function getExtraSoundOptions(id:String):ExtraSoundOptions {
