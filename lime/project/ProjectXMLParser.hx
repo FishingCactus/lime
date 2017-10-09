@@ -468,22 +468,22 @@ class ProjectXMLParser extends HXProject {
 		var includeChildElement = "";
 		if (element.elements.hasNext ()) {
 			
-			if (path != "") {
+			var pathElement = path;
+			var targetPathElement = targetPath;
+
+			if (pathElement != "") {
 				
-				path += "/";
-				
-			}
-			
-			if (targetPath != "") {
-				
-				targetPath += "/";
+				pathElement += "/";
 				
 			}
 			
+			if (targetPathElement != "") {
+				
+				targetPathElement += "/";
+				
+			}
 			for (childElement in element.elements) {
-				
 				var isValid = isValidElement (childElement, "");
-				
 				if (isValid) {
 
 					if(childElement.has.exclude || childElement.has.include)
@@ -555,10 +555,7 @@ class ProjectXMLParser extends HXProject {
 						id = substitute (childElement.att.name);
 						
 					}
-					
-					var asset = new Asset (path + childPath, targetPath + childTargetPath, childType, childEmbed);
-					asset.id = id;
-					
+					var asset = new Asset (pathElement + childPath, targetPathElement + childTargetPath, childType, childEmbed);
 					if((childElement.name == "sound" || childElement.name == "music") && 
 					childElement.has.start && childElement.has.duration) {
 						asset.data = {
@@ -585,7 +582,7 @@ class ProjectXMLParser extends HXProject {
 
 		if (path == "" && (element.has.include || element.has.exclude || type != null )) {
 			
-			LogHelper.error ("In order to use 'include' or 'exclude' on <asset /> nodes, you must specify also specify a 'path' attribute");
+			LogHelper.error ("In order to use 'include' or 'exclude' on <asset /> nodes, you must also specify a 'path' attribute");
 			return;
 			
 		} else if (!element.elements.hasNext () || getAssetsFromDirectory) {
@@ -631,8 +628,7 @@ class ProjectXMLParser extends HXProject {
 				if(getAssetsFromDirectory) {
 					exclude = excludeChildElement;
 					include = includeChildElement;
-				}else
-				{
+				}else {
 					if (element.has.exclude) {
 						exclude += "|" + substitute (element.att.exclude);
 					}

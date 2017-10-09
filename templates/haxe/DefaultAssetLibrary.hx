@@ -70,10 +70,12 @@ class DefaultAssetLibrary extends AssetLibrary {
 		::if (assets != null)::
 			::foreach assets::
 				::if (data.duration != null)::
-					::if (type == "sound")::
-							extraSoundOptions.set( '::id::', new ExtraSoundOptions(::data.start::, ::data.duration::));
-					::elseif (type == "music")::
-						extraSoundOptions.set( '::id::', new ExtraSoundOptions(::data.start::, ::data.duration::));
+					::if (data.start != null)::
+						::if (type == "sound")::
+							extraSoundOptions.set( '::resourceName::', new ExtraSoundOptions(::data.start::, ::data.duration::));
+						::elseif (type == "music")::
+							extraSoundOptions.set( '::resourceName::', new ExtraSoundOptions(::data.start::, ::data.duration::));
+						::end::
 					::end::
 				::end::
 			::end::
@@ -91,13 +93,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 
 		::if (assets != null)::
 			var id;
-        	::foreach assets::
-				id = "::id::";
-				::if (type == "sound")::
-					id = '::sourcePath::';
-				::elseif (type == "music")::
-					id = '::sourcePath::';
-				::end::
+        	::foreach assets::id = "::id::";
         ::if (embed)::
             ::if (type == "font")::
 				className.set (id, __ASSET__::flatName::);
