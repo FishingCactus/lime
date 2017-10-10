@@ -542,10 +542,11 @@ class ProjectXMLParser extends HXProject {
 					}
 
 					if((childElement.name == "sound" || childElement.name == "music") && 
-					childElement.has.start && childElement.has.duration) {
+						childElement.has.start || childElement.has.duration || childElement.has.preload) {
 						asset.data = {
-							start:childElement.att.start,
-							duration:childElement.att.duration
+							start: childElement.has.start ? childElement.att.start : null,
+							duration: childElement.has.duration ? childElement.att.duration : null,
+							preload: childElement.has.preload? childElement.att.preload : null
 							};
 					}
 						
