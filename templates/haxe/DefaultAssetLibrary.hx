@@ -55,24 +55,25 @@ class DefaultAssetLibrary extends AssetLibrary {
 		super ();
 
         var remoteAssets = new Map<String, String>();
-
 		#if (openfl && !flash)
 		::if (assets != null)::
-		::foreach assets::::if (type == "font")::openfl.text.Font.registerFont (__ASSET__OPENFL__::flatName::);::end::
-		::end::::end::
+			::foreach assets::
+				::if (type == "font")::
+					openfl.text.Font.registerFont (__ASSET__OPENFL__::flatName::);
+				::end::
+			::end::
+		::end::
 		#end
 
-		#if html5                                                
-		::if (assets != null)::
-		::foreach assets::::if (type == "font")::
-		fontData.set( '::fontName::', {ascent: ::data.ascent:: / ::data.unitEm::, descent:::data.descent::/::data.unitEm::});::end::
-		::end::::end::
+		#if html5
 		::if (assets != null)::
 			::foreach assets::
-						::if (type == "sound")::
-					extraSoundOptions.set( '::resourceName::', new ExtraSoundOptions(::data.start::, ::data.duration::, ::data.preload::));
-						::elseif (type == "music")::
-					extraSoundOptions.set( '::resourceName::', new ExtraSoundOptions(::data.start::, ::data.duration::, ::data.preload::));
+				::if (type == "font")::
+					fontData.set( '::fontName::', {ascent: ::data.ascent:: / ::data.unitEm::, descent:::data.descent::/::data.unitEm::});
+				::elseif ((type == "sound")||(type == "music"))::
+					::if (((data.start != null)||(data.duration != null))||(data.preload != null))::
+						extraSoundOptions.set( '::resourceName::', new ExtraSoundOptions(::data.start::, ::data.duration::, ::data.preload::));
+					::end::
 				::end::
 			::end::
 		::end::
@@ -81,26 +82,33 @@ class DefaultAssetLibrary extends AssetLibrary {
 
 		#if flash
 
-		::if (assets != null)::::foreach assets::::if (embed)::className.set ("::id::", __ASSET__::flatName::);::else::path.set ("::id::", "::resourceName::");::end::
-		type.set ("::id::", AssetType.$$upper(::type::));
-		::end::::end::
+		::if (assets != null)::
+			::foreach assets::
+				::if (embed)::
+					className.set ("::id::", __ASSET__::flatName::);
+				::else::
+					path.set ("::id::", "::resourceName::");
+				::end::
+				type.set ("::id::", AssetType.$$upper(::type::));
+			::end::
+		::end::
 
 		#elseif html5
 
 		::if (assets != null)::
-			var id;
+			var id:String;
         	::foreach assets::id = "::id::";
-        ::if (embed)::
-            ::if (type == "font")::
-				className.set (id, __ASSET__::flatName::);
-			::else::
-				path.set (id,::if (resourceName == id)::id::else::"::resourceName::"::end::);
-			::end::
-        ::else::
-            remoteAssets.set (id, ::if (resourceName == id)::id::else::"::resourceName::"::end::);
-        ::end::
-        type.set (id, AssetType.$$upper(::type::));
-        ::end::
+        		::if (embed)::
+            		::if (type == "font")::
+						className.set (id, __ASSET__::flatName::);
+					::else::
+						path.set (id,::if (resourceName == id)::id::else::"::resourceName::"::end::);
+					::end::
+        		::else::
+            		remoteAssets.set (id, ::if (resourceName == id)::id::else::"::resourceName::"::end::);
+        		::end::
+        		type.set (id, AssetType.$$upper(::type::));
+        	::end::
         ::end::
 
         var assetsPrefix = null;
@@ -126,14 +134,21 @@ class DefaultAssetLibrary extends AssetLibrary {
 		#if (windows || mac || linux)
 
 		var useManifest = false;
-		::if (assets != null)::::foreach assets::::if (type == "font")::
-		className.set ("::id::", __ASSET__::flatName::);
-		type.set ("::id::", AssetType.$$upper(::type::));
-		::else::::if (embed)::
-		className.set ("::id::", __ASSET__::flatName::);
-		type.set ("::id::", AssetType.$$upper(::type::));
-		::else::useManifest = true;
-		::end::::end::::end::::end::
+		::if (assets != null)::
+			::foreach assets::
+				::if (type == "font")::
+					className.set ("::id::", __ASSET__::flatName::);
+					type.set ("::id::", AssetType.$$upper(::type::));
+				::else::
+					::if (embed)::
+						className.set ("::id::", __ASSET__::flatName::);
+						type.set ("::id::", AssetType.$$upper(::type::));
+					::else::
+						useManifest = true;
+					::end::
+				::end::
+			::end::
+		::end::
 
 		if (useManifest) {
 
