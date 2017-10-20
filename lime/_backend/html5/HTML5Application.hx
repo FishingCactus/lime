@@ -375,10 +375,12 @@ class HTML5Application {
 
 	private static function staticHandleApplicationEvent(timestamp:Float)
 	{
+		var correctedTimestamp:Float = untyped __js__ ('performance.now()');
+
 		#if (dev && js)
-		instance.handleApplicationEvent(timestamp * untyped $global.Tools.speedFactor);
+		instance.handleApplicationEvent(correctedTimestamp * untyped $global.Tools.speedFactor);
 		#else
-		instance.handleApplicationEvent(timestamp);
+		instance.handleApplicationEvent(correctedTimestamp);
 		#end
 	}
 
