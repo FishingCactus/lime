@@ -378,12 +378,9 @@ class Assets {
 					return key;
 				}
 			}
-			return "";
-			
 		}
-		return "";
 		#end
-		return null;
+		return "";
 	}
 	
 	
