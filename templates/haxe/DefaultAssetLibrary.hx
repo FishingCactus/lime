@@ -9,6 +9,7 @@ import lime.app.Promise;
 import lime.audio.AudioSource;
 import lime.audio.openal.AL;
 import lime.audio.AudioBuffer;
+import lime.audio.ExtraSoundOptions;
 import lime.graphics.Image;
 import lime.net.HTTPRequest;
 import lime.system.CFFI;
@@ -46,6 +47,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 
 	#if html5
 		public var fontData( default, null ) = new Map<String, {var ascent:Float; var descent:Float;}>();
+		public var extraSoundOptions:Map<String, ExtraSoundOptions> = new Map<String, ExtraSoundOptions>();
 	#end
 
 	public function new () {
@@ -53,37 +55,60 @@ class DefaultAssetLibrary extends AssetLibrary {
 		super ();
 
         var remoteAssets = new Map<String, String>();
-
 		#if (openfl && !flash)
 		::if (assets != null)::
-		::foreach assets::::if (type == "font")::openfl.text.Font.registerFont (__ASSET__OPENFL__::flatName::);::end::
-		::end::::end::
+			::foreach assets::
+				::if (type == "font")::
+					openfl.text.Font.registerFont (__ASSET__OPENFL__::flatName::);
+				::end::
+			::end::
+		::end::
 		#end
 
-		#if html5                                                
+		#if html5
 		::if (assets != null)::
-		::foreach assets::::if (type == "font")::
-		fontData.set( '::fontName::', {ascent:::data.ascent::/::data.unitEm::, descent:::data.descent::/::data.unitEm::});::end::
-		::end::::end::
+			::foreach assets::
+				::if (type == "font")::
+					fontData.set( '::fontName::', {ascent: ::data.ascent:: / ::data.unitEm::, descent:::data.descent::/::data.unitEm::});
+				::elseif ((type == "sound")||(type == "music"))::
+					::if (((data.start != null)||(data.duration != null))||(data.preload != null))::
+						extraSoundOptions.set( '::resourceName::', new ExtraSoundOptions(::data.start::, ::data.duration::, ::data.preload::));
+					::end::
+				::end::
+			::end::
+		::end::
+
 		#end
 
 		#if flash
 
-		::if (assets != null)::::foreach assets::::if (embed)::className.set ("::id::", __ASSET__::flatName::);::else::path.set ("::id::", "::resourceName::");::end::
-		type.set ("::id::", AssetType.$$upper(::type::));
-		::end::::end::
+		::if (assets != null)::
+			::foreach assets::
+				::if (embed)::
+					className.set ("::id::", __ASSET__::flatName::);
+				::else::
+					path.set ("::id::", "::resourceName::");
+				::end::
+				type.set ("::id::", AssetType.$$upper(::type::));
+			::end::
+		::end::
 
 		#elseif html5
 
-		::if (assets != null)::var id;
-        ::foreach assets::id = "::id::";
-        ::if (embed)::
-            ::if (type == "font")::className.set (id, __ASSET__::flatName::);::else::path.set (id,::if (resourceName == id)::id::else::"::resourceName::"::end::);::end::
-        ::else::
-            remoteAssets.set (id, ::if (resourceName == id)::id::else::"::resourceName::"::end::);
-        ::end::
-        type.set (id, AssetType.$$upper(::type::));
-        ::end::
+		::if (assets != null)::
+			var id:String;
+        	::foreach assets::id = "::id::";
+        		::if (embed)::
+            		::if (type == "font")::
+						className.set (id, __ASSET__::flatName::);
+					::else::
+						path.set (id,::if (resourceName == id)::id::else::"::resourceName::"::end::);
+					::end::
+        		::else::
+            		remoteAssets.set (id, ::if (resourceName == id)::id::else::"::resourceName::"::end::);
+        		::end::
+        		type.set (id, AssetType.$$upper(::type::));
+        	::end::
         ::end::
 
         var assetsPrefix = null;
@@ -109,14 +134,21 @@ class DefaultAssetLibrary extends AssetLibrary {
 		#if (windows || mac || linux)
 
 		var useManifest = false;
-		::if (assets != null)::::foreach assets::::if (type == "font")::
-		className.set ("::id::", __ASSET__::flatName::);
-		type.set ("::id::", AssetType.$$upper(::type::));
-		::else::::if (embed)::
-		className.set ("::id::", __ASSET__::flatName::);
-		type.set ("::id::", AssetType.$$upper(::type::));
-		::else::useManifest = true;
-		::end::::end::::end::::end::
+		::if (assets != null)::
+			::foreach assets::
+				::if (type == "font")::
+					className.set ("::id::", __ASSET__::flatName::);
+					type.set ("::id::", AssetType.$$upper(::type::));
+				::else::
+					::if (embed)::
+						className.set ("::id::", __ASSET__::flatName::);
+						type.set ("::id::", AssetType.$$upper(::type::));
+					::else::
+						useManifest = true;
+					::end::
+				::end::
+			::end::
+		::end::
 
 		if (useManifest) {
 
@@ -383,6 +415,16 @@ class DefaultAssetLibrary extends AssetLibrary {
 		//#end
 
 	}
+
+	public override function getPathMap():Map<String, String> {
+		return path;
+	}
+
+	#if html5
+	public override function getExtraSoundOptions(id:String):ExtraSoundOptions {
+		return extraSoundOptions.get(id);
+	}
+	#end
 
 	#if js
 	public static function getStringFromBytes(bytes:Bytes) {

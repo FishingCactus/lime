@@ -10,6 +10,7 @@ import lime.app.Event;
 import lime.app.Promise;
 import lime.app.Future;
 import lime.audio.AudioBuffer;
+import lime.audio.ExtraSoundOptions;
 import lime.graphics.Image;
 import lime.text.Font;
 import lime.utils.Bytes;
@@ -42,6 +43,8 @@ class Assets {
 	public static var onChange = new Event<Void->Void> ();
 	
 	private static var initialized = false;
+
+	public static var extraSoundOptions:Map<String,ExtraSoundOptions> = new Map <String, ExtraSoundOptions> ();
 	
 	
 	public static function exists (id:String, type:AssetType = null):Bool {
@@ -334,6 +337,50 @@ class Assets {
 		
 		return libraries.get (name);
 		
+	}
+
+	public static function getExtraSoundOptions(id:String):ExtraSoundOptions {
+		initialize ();
+		
+		#if (tools && !display)
+		var library = getLibrary ("");
+		
+		if (library != null) {
+			
+			if (library.exists (id, null)) {
+				return library.getExtraSoundOptions (id);
+				
+			} else {
+				
+				trace ("[Assets] There is no asset with an ID of \"" + id + "\"");
+				
+			}
+			
+		}
+		
+		#end
+		
+		return null;
+		
+	}
+
+	public static function getLogicalPath(id:String):String {
+		initialize ();
+		
+		#if (tools && !display)
+		var library = getLibrary ("");
+		
+		if (library != null) {
+			
+			var pathMap:Map<String,String> = library.getPathMap();
+			for(key in pathMap.keys()) {
+				if(pathMap[key] == id) {
+					return key;
+				}
+			}
+		}
+		#end
+		return "";
 	}
 	
 	
@@ -935,6 +982,16 @@ class AssetLibrary {
 		
 		return null;
 		
+	}
+
+	public function getPathMap():Map<String,String> {
+
+		return null;
+	}
+
+	public function getExtraSoundOptions(id:String):ExtraSoundOptions {
+
+		return null;
 	}
 	
 	
