@@ -327,7 +327,6 @@ class HTML5Application {
 		private static var __maxUploadCount = 0;
 
 		public static function __init__ () {
-			untyped $global.Profile = $global.Profile || {};
 
             var updateTool = new lime.utils.ProfileTool("Update");
             updateTool.count = countUpdate;

@@ -2282,14 +2282,16 @@ class GL {
 	#if profile
 		#if js
 			public static function __init__ () {
-				untyped $global.Profile = $global.Profile || {};
-				untyped $global.Profile.GL = {};
-				untyped $global.Profile.GL.logStatistics = logStatistics;
-				untyped $global.Profile.GL.logTextures = logTextures;
+                var glTool = new lime.utils.ProfileTool("GL");
+                glTool.log = logStatistics;
 			}
 		#end
 
 		public static function logStatistics () {
+			for (data in textureDataTable.iterator()) {
+				trace ('    $data');
+			}
+
 			trace ('Textures:');
 			trace ('    current count: ${textureCount}; total since beginning: ${totalTextureCount}');
 
@@ -2300,12 +2302,6 @@ class GL {
 			}
 
 			trace ('    total byte count: $byteCount');
-		}
-
-		public static function logTextures () {
-			for (data in textureDataTable.iterator()) {
-				trace ('    $data');
-			}
 		}
 
 		public static function getTextureData (id:Int):TextureData {
