@@ -328,13 +328,16 @@ class HTML5Application {
 
 		public static function __init__ () {
 			untyped $global.Profile = $global.Profile || {};
-			untyped $global.Profile.UpdateInfo = {};
-			untyped $global.Profile.UpdateInfo.count = countUpdate;
-			untyped $global.Profile.UpdateInfo.logStatistics = logStatistics;
 
-			untyped $global.Profile.BitmapDataUpload = {};
-			untyped $global.Profile.BitmapDataUpload.count = countUpload;
-			untyped $global.Profile.BitmapDataUpload.logStatistics= function(threshold:Int = 0) {
+            var updateTool = new lime.utils.ProfileTool("Update");
+            updateTool.count = countUpdate;
+            updateTool.log = logStatistics;
+            updateTool.help = "Counts all DisplayObject.__update()";
+
+            var textureUploadTool = new lime.utils.ProfileTool("TextureUpload");
+            textureUploadTool.count = countUpload;
+
+			textureUploadTool.log = function(threshold:Int = 0) {
 				trace("Maximum Bitmap uploads per frame : " + __maxUploadCount);
                 for( id in __uploadMap.keys () ) {
                     var value = __uploadMap[id];
@@ -344,7 +347,8 @@ class HTML5Application {
                     trace (' ${id} => uploaded x${value}');
                 }
 			};
-			untyped $global.Profile.BitmapDataUpload.reset = function() {
+
+			textureUploadTool.reset = function() {
 				__maxUploadCount = 0;
                 __uploadMap = new Map();
 			};
