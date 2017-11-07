@@ -63,6 +63,11 @@
 		<dependency path="dependencies/angle/libglesv2.dll" if="windows angle" unless="static_link" />
 		<dependency path="dependencies/clipboard.min.js" if="html5" />
 
+		<section if="spector">
+			<dependency path="dependencies/spector.bundle.js" />
+			<haxedef name="spector"/>
+		</section>
+
 		<haxedef name="native-trace" if="flash" unless="haxe-trace || haxetrace" />
 
 		<architecture name="armv7" if="android" />
