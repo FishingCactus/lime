@@ -236,6 +236,12 @@ class HTML5Window {
 			element.addEventListener ("gamepaddisconnected", handleGamepadEvent, true);
 
 		}
+		#if (dev && spector)
+			untyped __js__("
+				var spector = new SPECTOR.Spector();
+				spector.displayUI();
+				");
+		#end
 	}
 
 
