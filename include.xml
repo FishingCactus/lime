@@ -63,7 +63,7 @@
 		<dependency path="dependencies/angle/libglesv2.dll" if="windows angle" unless="static_link" />
 		<dependency path="dependencies/clipboard.min.js" if="html5" />
 
-		<section if="spector">
+		<section if="dev spector">
 			<dependency path="dependencies/spector.bundle.js" />
 			<haxedef name="spector"/>
 		</section>
