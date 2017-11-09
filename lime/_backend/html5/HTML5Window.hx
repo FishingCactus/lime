@@ -239,6 +239,7 @@ class HTML5Window {
 		#if (dev && spector)
 			untyped __js__("
 				var spector = new SPECTOR.Spector();
+				spector.spyCanvases();
 				spector.displayUI();
 				");
 		#end
