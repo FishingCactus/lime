@@ -285,7 +285,7 @@ class HTML5Application {
 						__lastUpdateMap = __updateMap;
 						__updateMap = new Map<String, Int>();
 						var cpf = __updateCalls / 150;
-						trace('__update/frame: ' + cpf);
+						untyped console.log('__update/frame: ' + cpf);
 						__frameIndex = 0;
 						__updateCalls = 0;
 					}
@@ -296,7 +296,7 @@ class HTML5Application {
 					__uploadFrameIndex++;
 					if(__uploadFrameIndex == 30) {
 						var cpf = __totalUploadCount / 30;
-						trace('BitmapData uploads/frame: ' + cpf);
+						untyped console.log('BitmapData uploads/frame: ' + cpf);
 						__uploadFrameIndex = 0;
 						__totalUploadCount = 0;
 					}
@@ -327,26 +327,30 @@ class HTML5Application {
 		private static var __maxUploadCount = 0;
 
 		public static function __init__ () {
-			untyped $global.Profile = $global.Profile || {};
-			untyped $global.Profile.UpdateInfo = {};
-			untyped $global.Profile.UpdateInfo.count = countUpdate;
-			untyped $global.Profile.UpdateInfo.logStatistics = logStatistics;
 
-			untyped $global.Profile.BitmapDataUpload = {};
-			untyped $global.Profile.BitmapDataUpload.count = countUpload;
-			untyped $global.Profile.BitmapDataUpload.logStatistics= function(threshold:Int = 0) {
-				trace("Maximum Bitmap uploads per frame : " + __maxUploadCount);
-                for( id in __uploadMap.keys () ) {
-                    var value = __uploadMap[id];
-                    if(value < threshold) {
-                        continue;
-                    }
-                    trace (' ${id} => uploaded x${value}');
-                }
+			var updateTool = new lime.utils.ProfileTool("Update");
+			updateTool.count = countUpdate;
+			updateTool.log = logStatistics;
+			updateTool.help = "Counts all DisplayObject.__update()";
+
+			var textureUploadTool = new lime.utils.ProfileTool("TextureUpload");
+			textureUploadTool.count = countUpload;
+			textureUploadTool.help = "Counts textures creation";
+
+			textureUploadTool.log = function(threshold:Int = 0) {
+				untyped console.log("Maximum Bitmap uploads per frame : " + __maxUploadCount);
+				for( id in __uploadMap.keys () ) {
+					var value = __uploadMap[id];
+					if(value < threshold) {
+						continue;
+					}
+					untyped console.log(' ${id} => uploaded x${value}');
+				}
 			};
-			untyped $global.Profile.BitmapDataUpload.reset = function() {
+
+			textureUploadTool.reset = function() {
 				__maxUploadCount = 0;
-                __uploadMap = new Map();
+				__uploadMap = new Map();
 			};
 		}
 
@@ -368,7 +372,7 @@ class HTML5Application {
 				if ( __lastUpdateMap.get(profileId) < threshold * 150) {
 					continue;
 				}
-				trace(' ${profileId} => ${__lastUpdateMap.get(profileId)/150} updates/frame');
+				untyped console.log(' ${profileId} => ${__lastUpdateMap.get(profileId)/150} updates/frame');
 			}
 		}
 	#end
@@ -392,7 +396,7 @@ class HTML5Application {
 
 			// switch (event.keyCode) {
 
-			// 	case 32, 37, 38, 39, 40: event.preventDefault ();
+			//	case 32, 37, 38, 39, 40: event.preventDefault ();
 
 			// }
 
