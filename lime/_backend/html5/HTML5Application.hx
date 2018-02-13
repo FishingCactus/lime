@@ -285,7 +285,7 @@ class HTML5Application {
 						__lastUpdateMap = __updateMap;
 						__updateMap = new Map<String, Int>();
 						var cpf = __updateCalls / 150;
-						trace('__update/frame: ' + cpf);
+						untyped console.log('__update/frame: ' + cpf);
 						__frameIndex = 0;
 						__updateCalls = 0;
 					}
@@ -296,7 +296,7 @@ class HTML5Application {
 					__uploadFrameIndex++;
 					if(__uploadFrameIndex == 30) {
 						var cpf = __totalUploadCount / 30;
-						trace('BitmapData uploads/frame: ' + cpf);
+						untyped console.log('BitmapData uploads/frame: ' + cpf);
 						__uploadFrameIndex = 0;
 						__totalUploadCount = 0;
 					}
@@ -335,15 +335,16 @@ class HTML5Application {
 
 			var textureUploadTool = new lime.utils.ProfileTool("TextureUpload");
 			textureUploadTool.count = countUpload;
+			textureUploadTool.help = "Counts textures creation";
 
 			textureUploadTool.log = function(threshold:Int = 0) {
-				trace("Maximum Bitmap uploads per frame : " + __maxUploadCount);
+				untyped console.log("Maximum Bitmap uploads per frame : " + __maxUploadCount);
 				for( id in __uploadMap.keys () ) {
 					var value = __uploadMap[id];
 					if(value < threshold) {
 						continue;
 					}
-					trace (' ${id} => uploaded x${value}');
+					untyped console.log(' ${id} => uploaded x${value}');
 				}
 			};
 
@@ -371,7 +372,7 @@ class HTML5Application {
 				if ( __lastUpdateMap.get(profileId) < threshold * 150) {
 					continue;
 				}
-				trace(' ${profileId} => ${__lastUpdateMap.get(profileId)/150} updates/frame');
+				untyped console.log(' ${profileId} => ${__lastUpdateMap.get(profileId)/150} updates/frame');
 			}
 		}
 	#end

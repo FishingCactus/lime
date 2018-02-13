@@ -2289,11 +2289,11 @@ class GL {
 
 		public static function logStatistics () {
 			for (data in textureDataTable.iterator()) {
-				trace ('	$data');
+				untyped console.log ('	$data');
 			}
 
-			trace ('Textures:');
-			trace ('	current count: ${textureCount}; total since beginning: ${totalTextureCount}');
+			untyped console.log ('Textures:');
+			untyped console.log ('	current count: ${textureCount}; total since beginning: ${totalTextureCount}');
 
 			var byteCount = 0;
 
@@ -2301,7 +2301,7 @@ class GL {
 				byteCount += data.byteCount;
 			}
 
-			trace ('	total byte count: $byteCount');
+			untyped console.log ('	total byte count: $byteCount');
 		}
 
 		public static function getTextureData (id:Int):TextureData {
