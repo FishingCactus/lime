@@ -629,6 +629,9 @@ class ProjectXMLParser extends HXProject {
 	}
 
 
+
+
+
 	private function parseAssetsElementDirectory (path:String, targetPath:String, include:String, exclude:String, type:AssetType, embed:Null<Bool>, glyphs:String, recursive:Bool):Void {
 
 		if (StringTools.endsWith (path, ".bundle")) {
@@ -684,6 +687,45 @@ class ProjectXMLParser extends HXProject {
 		}
 
 	}
+
+
+	private function parseSpritesheetElement (element:Fast, basePath:String = "", isTemplate:Bool = false):Void {
+
+		Sys.putEnv ("swflite-spritesheet", "true");
+
+		var sourcePath = "";
+		var targetPath = "";
+		var fileName = "";
+
+		if (element.has.sourcePath) {
+
+			sourcePath = PathHelper.combine (basePath, substitute (element.att.sourcePath));
+
+		}
+
+		if (element.has.targetPath) {
+
+			targetPath = PathHelper.combine (basePath, substitute (element.att.targetPath));
+
+		}
+
+		if (element.has.fileName) {
+
+			fileName = element.att.fileName;
+
+		}
+
+		LogHelper.info("Spritesheet: ---------------------------");
+		LogHelper.info("sourcePath: " + sourcePath);
+		LogHelper.info("targetPath:" + targetPath);
+		LogHelper.info("fileName:" + fileName);
+		LogHelper.info("---------------------------------------");
+
+		swfLiteSpritesheet = new SwfLiteSpritesheet(sourcePath, targetPath, fileName);
+		//haxedefs.set ("verbose", 1);
+
+	}
+
 
 
 	private function parseBool (attribute:String):Bool {
@@ -1211,6 +1253,10 @@ class ProjectXMLParser extends HXProject {
 					case "assets":
 
 						parseAssetsElement (element, extensionPath);
+
+					case "swflite-spritesheet":
+
+						parseSpritesheetElement (element, extensionPath);
 
 					case "library", "swf":
 

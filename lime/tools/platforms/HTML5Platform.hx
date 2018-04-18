@@ -144,6 +144,15 @@ class HTML5Platform extends PlatformTarget {
 			}
 			
 		}
+
+
+		//start spritesheet generation before copy of assets from Assets to Export folder
+
+		if (Sys.getEnv("swflite-spritesheet") == "true")
+		{
+			createSpritesheet();
+		}
+
 		
 		for (asset in project.assets) {
 			
@@ -272,9 +281,17 @@ class HTML5Platform extends PlatformTarget {
 			}
 			
 		}
-		
+
+
+
 		AssetHelper.createManifest (project, PathHelper.combine (destination, "manifest"));
-		
+
+	}
+
+	private function createSpritesheet():Void
+	{
+		LogHelper.info("spritesheet info arrived: " + project.swfLiteSpritesheet.sourcePath);
+		PathHelper.mkdir (Path.directory (project.swfLiteSpritesheet.sourcePath));
 	}
 	
 	

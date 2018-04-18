@@ -34,6 +34,7 @@ class HXProject {
 	public var app:ApplicationData;
 	public var architectures:Array <Architecture>;
 	public var assets:Array <Asset>;
+	public var swfLiteSpritesheet:SwfLiteSpritesheet;
 	public var certificate:Keystore;
 	public var command:String;
 	public var config:ConfigData;
@@ -228,7 +229,8 @@ class HXProject {
 		ObjectHelper.copyFields (app, project.app);
 		project.architectures = architectures.copy ();
 		project.assets = assets.copy ();
-		
+		project.swfLiteSpritesheet = swfLiteSpritesheet.clone ();
+
 		for (i in 0...assets.length) {
 			
 			project.assets[i] = assets[i].clone ();
