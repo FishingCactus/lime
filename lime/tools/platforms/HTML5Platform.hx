@@ -1,6 +1,8 @@
 package lime.tools.platforms;
 
-
+import lime.tools.helpers.PathHelper;
+import lime.tools.helpers.PathHelper;
+import lime.project.Asset;
 import haxe.io.Path;
 import haxe.Template;
 import lime.tools.helpers.AssetHelper;
@@ -215,18 +217,21 @@ class HTML5Platform extends PlatformTarget {
 			}
 			
 		}
-		
+
+
 		for (asset in project.assets) {
-			
+
+
 			var path = PathHelper.combine (destination, asset.targetPath);
-			
+
 			if (asset.type != AssetType.TEMPLATE) {
-				
+
 				if (asset.type != AssetType.FONT) {
-					
+					LogHelper.warn ("DESTINATION \"" + path+ "\"");
 					PathHelper.mkdir (Path.directory (path));
 					FileHelper.copyAssetIfNewer (asset, path);
-					
+
+
 				} else if (useWebfonts) {
 					
 					PathHelper.mkdir (Path.directory (path));
@@ -236,9 +241,7 @@ class HTML5Platform extends PlatformTarget {
 					for (extension in [ ext, ".eot", ".woff", ".svg" ]) {
 						
 						if (FileSystem.exists (source + extension)) {
-							
 							FileHelper.copyIfNewer (source + extension, path + extension);
-							
 						} else {
 							
 							LogHelper.warn ("Could not find generated font file \"" + source + extension + "\"");
@@ -290,8 +293,48 @@ class HTML5Platform extends PlatformTarget {
 
 	private function createSpritesheet():Void
 	{
-		LogHelper.info("spritesheet info arrived: " + project.swfLiteSpritesheet.sourcePath);
-		PathHelper.mkdir (Path.directory (project.swfLiteSpritesheet.sourcePath));
+		LogHelper.info("spritesheet info arrived here: " + project.swfLiteSpritesheet.sourcePath);
+		PathHelper.mkdir (project.swfLiteSpritesheet.targetPath);
+
+
+		var workingList:Array<Asset> = project.assets.copy();
+
+		for (asset in workingList) {
+			if (asset.markedForSpritesheet) {
+				project.assets.remove(asset);
+				LogHelper.info("prepared for spritesheet: " + asset.sourcePath + "," + asset.targetPath);
+
+				var targetPath = PathHelper.combine (project.swfLiteSpritesheet.sourcePath, asset.targetPath);
+				FileHelper.copyAssetIfNewer (asset, targetPath);
+			}
+
+		}
+
+		var baseDir:String = Sys.getCwd();
+		var toolsDir:String = PathHelper.combine(baseDir, "Tools");
+		LogHelper.info(toolsDir);
+		var argList:Array<String> = [];
+		argList.push("-cp");
+		argList.push(PathHelper.combine(toolsDir, "gdx.jar:") + PathHelper.combine(toolsDir, "gdx-tools.jar"));
+		argList.push("com.badlogic.gdx.tools.texturepacker.TexturePacker");
+		argList.push(PathHelper.combine(baseDir, project.swfLiteSpritesheet.sourcePath));
+		argList.push(PathHelper.combine(baseDir, project.swfLiteSpritesheet.targetPath));
+		argList.push(project.swfLiteSpritesheet.fileName);
+
+		Sys.command("java", argList);
+		LogHelper.info(argList.toString());
+
+
+		//TODO add atlas to the assets
+
+		var exportPath:String = PathHelper.combine(targetDirectory, "bin");
+		var sourcePath:String = PathHelper.combine(baseDir, project.swfLiteSpritesheet.targetPath);
+		var targetPath:String = project.swfLiteSpritesheet.targetPath; //export target will be added later
+
+		//check if texture exists!!!!!
+		project.assets.push (new Asset (PathHelper.combine(sourcePath, "texture.png"), PathHelper.combine(targetPath, "texture.png")));
+		project.assets.push (new Asset (PathHelper.combine(sourcePath, "texture.atlas"), PathHelper.combine(targetPath, "texture.atlas")));
+
 	}
 	
 	
