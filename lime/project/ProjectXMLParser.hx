@@ -1,6 +1,6 @@
 package lime.project;
 
-
+import Std;
 import haxe.io.Path;
 import haxe.xml.Fast;
 import lime.tools.helpers.ArrayHelper;
@@ -689,40 +689,46 @@ class ProjectXMLParser extends HXProject {
 	}
 
 
-	private function parseSpritesheetElement (element:Fast, basePath:String = "", isTemplate:Bool = false):Void {
+	private function parseSwfSpritesheetElement (element:Fast, basePath:String = "", isTemplate:Bool = false):Void {
 
-		Sys.putEnv ("swflite-spritesheet", "true");
 
-		var sourcePath = "";
-		var targetPath = "";
-		var fileName = "";
+		var fileName:String = "swfSpritesheet"; // default value if fileName is not set
+		var targetPath:String = "";
+		var packConfigPath:String = "";
+		var toolsPath:String = "";
+		var active:Bool = true; // default is true if parameter has not been set
 
-		if (element.has.sourcePath) {
 
-			sourcePath = PathHelper.combine (basePath, substitute (element.att.sourcePath));
-
+		if (element.has.fileName) {
+			fileName = element.att.fileName;
+		} else {
+			LogHelper.warn("You didn't specify the attribute 'fileName' in element <swfSpritesheet/> --> default name: " + "'" + fileName + "'" + " will be used");
 		}
 
 		if (element.has.targetPath) {
-
 			targetPath = PathHelper.combine (basePath, substitute (element.att.targetPath));
-
+		} else {
+			LogHelper.error("You have to specify the attribute 'targetPath' in element <swfSpritesheet/>" );
 		}
 
-		if (element.has.fileName) {
-
-			fileName = element.att.fileName;
-
+		if (element.has.packConfigPath) {
+			packConfigPath = PathHelper.combine (basePath, substitute (element.att.packConfigPath));
+		} else {
+			LogHelper.error("You have to specify the attribute 'packConfigPath' in element <swfSpritesheet/> --> path to pack.json");
 		}
 
-		LogHelper.info("Spritesheet: ---------------------------");
-		LogHelper.info("sourcePath: " + sourcePath);
-		LogHelper.info("targetPath:" + targetPath);
-		LogHelper.info("fileName:" + fileName);
-		LogHelper.info("---------------------------------------");
+		if (element.has.toolsPath) {
+			toolsPath = PathHelper.combine (basePath, substitute (element.att.toolsPath));
+		} else {
+			LogHelper.error("You have to specify the attribute 'toolsPath' in element <swfSpritesheet/>" );
+		}
 
-		swfLiteSpritesheet = new SwfLiteSpritesheet(sourcePath, targetPath, fileName);
-		//haxedefs.set ("verbose", 1);
+		if (element.has.active) {
+			active = parseBool(element.att.active);
+		}
+
+		Sys.putEnv ("swfSpritesheet", Std.string(active));
+		swfLiteSpritesheet = new SwfSpritesheet(fileName, targetPath, packConfigPath, toolsPath, active);
 
 	}
 
@@ -1254,9 +1260,9 @@ class ProjectXMLParser extends HXProject {
 
 						parseAssetsElement (element, extensionPath);
 
-					case "swflite-spritesheet":
+					case "swfSpritesheet":
 
-						parseSpritesheetElement (element, extensionPath);
+						parseSwfSpritesheetElement (element, extensionPath);
 
 					case "library", "swf":
 

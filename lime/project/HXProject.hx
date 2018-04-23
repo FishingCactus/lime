@@ -34,7 +34,7 @@ class HXProject {
 	public var app:ApplicationData;
 	public var architectures:Array <Architecture>;
 	public var assets:Array <Asset>;
-	public var swfLiteSpritesheet:SwfLiteSpritesheet;
+	public var swfLiteSpritesheet:SwfSpritesheet;
 	public var certificate:Keystore;
 	public var command:String;
 	public var config:ConfigData;
@@ -218,7 +218,7 @@ class HXProject {
 		samplePaths = new Array <String> ();
 		splashScreens = new Array <SplashScreen> ();
 		targetHandlers = new Map <String, String> ();
-		
+
 	}
 	
 	
@@ -913,7 +913,9 @@ class HXProject {
 			}
 			
 		}
-		
+
+		context.swfLiteSpritesheet = swfLiteSpritesheet;
+
 		context.assets = new Array <Dynamic> ();
 		var fontAssets = new Array <Dynamic> ();
 		for (asset in assets) {
