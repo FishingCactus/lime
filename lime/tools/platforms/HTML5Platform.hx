@@ -302,89 +302,125 @@ class HTML5Platform extends PlatformTarget {
 		var baseDir:String = Sys.getCwd();
 		var tempFolder:String = PathHelper.combine(baseDir, "TempSpritesheetGeneration");
 
+		// clean temp folder
+		prepareTempFolder(tempFolder);
+		// assets marked for spritesheet will be copied to tempFolder and removed from assets list
+		moveAssetsToTempFolder(tempFolder);
+		// copy packFile to tempFolder
+		copyPackFileToTempFolder(baseDir, tempFolder);
+		// parse pack.json for setting properties in swfSpritesheet
+		parsePackJson(tempFolder);
+		// create texture with gdxLib
+		packTextureWithCommandLineTool(baseDir, tempFolder);
+		// check if more than 2 files located in targetFolder
+		checkNumberOfFilesInTargetFolder();
+		// metaFile (*.atlas) and textureFile (*.png) will be added to the assets list
+		addTextureFilesToAssetsList();
+	}
+
+
+	private function prepareTempFolder(tempFolder:String):Void
+	{
 		PathHelper.removeDirectory(tempFolder);
 		PathHelper.mkdir(tempFolder);
+	}
 
+	private function moveAssetsToTempFolder(tempFolder:String):Void
+	{
 		var workingList:Array<Asset> = project.assets.copy();
-
 		for (asset in workingList) {
 			if (asset.markedForSpritesheet) {
-
-				// copy assets into temp folder and remove them from assets list! --> don't need to be loaded after spritesheet generation anymore
+				// remove assets from assets list! --> don't need to be loaded after spritesheet generation anymore
 				project.assets.remove(asset);
-				var targetPath = PathHelper.combine (tempFolder, asset.targetPath);
 
+				// copy assets into temp folder
+				var targetPath = PathHelper.combine (tempFolder, asset.targetPath);
 				FileHelper.copyAssetIfNewer (asset, targetPath);
 			}
-
 		}
+	}
 
-
-		var packConfigPath:String = PathHelper.combine(baseDir, project.swfLiteSpritesheet.packConfigPath);
+	private function copyPackFileToTempFolder(baseDir:String, tempFolder:String):Void {
+		var packConfigPath:String = PathHelper.combine(baseDir, project.swfSpritesheet.packConfigPath);
 		var packFileName:String = "pack.json";
 		var sourcePackFile:String = PathHelper.combine(packConfigPath, packFileName);
 		var targetPackFile:String = PathHelper.combine(tempFolder, packFileName);
 
-		//LogHelper.info("copy for spritesheet: " + packFilePath + ", " + tempFolder);
+		if (FileSystem.exists(sourcePackFile)) {
+			FileHelper.copyFile(sourcePackFile, targetPackFile);
+		} else {
+			LogHelper.error("[SwfSpritesheet] could not find pack.json: --> " + sourcePackFile);
+		}
+	}
 
-		FileHelper.copyFile(sourcePackFile, targetPackFile);
+	private function parsePackJson(tempFolder:String):Void {
 
-		var toolsDir:String = PathHelper.combine(baseDir, project.swfLiteSpritesheet.toolsPath);
+		var pathToPackFile:String = PathHelper.combine(tempFolder, "pack.json");
+		var value = File.getContent(pathToPackFile);
+		var atlasConfiguration:AtlasConfiguration = Json.parse(value);
+		project.swfSpritesheet.outputFormat = atlasConfiguration.outputFormat;
+	}
+
+	private function packTextureWithCommandLineTool(baseDir:String, tempFolder:String):Void
+	{
+		var toolsDir:String = PathHelper.combine(baseDir, project.swfSpritesheet.toolsPath);
 		var sourcePath:String = tempFolder;
-		var targetPath:String = PathHelper.combine(baseDir, project.swfLiteSpritesheet.targetPath);
+		var targetPath:String = PathHelper.combine(baseDir, project.swfSpritesheet.targetPath);
 
-		LogHelper.info(toolsDir);
 		var argList:Array<String> = [];
 		argList.push("-cp");
 		argList.push(PathHelper.combine(toolsDir, "gdx.jar:") + PathHelper.combine(toolsDir, "gdx-tools.jar"));
 		argList.push("com.badlogic.gdx.tools.texturepacker.TexturePacker");
 		argList.push(sourcePath);
 		argList.push(targetPath);
-		argList.push(project.swfLiteSpritesheet.fileName);
+		argList.push(project.swfSpritesheet.fileName);
 
-		Sys.command("java", argList);
-		LogHelper.info(argList.toString());
-
-
-
-		//TODO add atlas to the assets
-
-		var exportPath:String = PathHelper.combine(targetDirectory, "bin");
-		var sourcePathGeneratedSpritesheet:String = PathHelper.combine(baseDir, project.swfLiteSpritesheet.targetPath);
-		var targetPathGeneratedSpriteSheet:String = project.swfLiteSpritesheet.targetPath; //export target will be added later
-
-
-
-
-
-
-		var pathToPackFile:String = PathHelper.combine(sourcePath, "pack.json");
-		var packFileExists:Bool = FileSystem.exists(pathToPackFile);
-
-		if (packFileExists) {
-			LogHelper.info("pack.json exists");
-			var value = File.getContent(PathHelper.combine(sourcePath, "pack.json"));
-			var atlasConfiguration:AtlasConfiguration = Json.parse(value);
-			project.swfLiteSpritesheet.outputFormat = atlasConfiguration.outputFormat;
-			LogHelper.info("outputformat is " + atlasConfiguration.outputFormat);
+		var result:Int = Sys.command("java", argList);
+		if (result != 0) {
+			LogHelper.error("[SwfSpritesheet] Could not pack texture: --> " + argList.join(" "));
 		}
-
-		var textureFileNameWithExtension:String = project.swfLiteSpritesheet.fileName + "." + project.swfLiteSpritesheet.outputFormat;
-		var atlasFilenameWithExtension:String = project.swfLiteSpritesheet.fileName + "." + "atlas";
-
-
-		//TODO check if texture/atlas already existexists!!!!! Otherwise it will be loaded twice!
-		project.assets.push (new Asset (PathHelper.combine(sourcePathGeneratedSpritesheet, textureFileNameWithExtension), PathHelper.combine(targetPathGeneratedSpriteSheet, textureFileNameWithExtension)));
-		project.assets.push (new Asset (PathHelper.combine(sourcePathGeneratedSpritesheet, atlasFilenameWithExtension), PathHelper.combine(targetPathGeneratedSpriteSheet, atlasFilenameWithExtension)));
-
-
 	}
 
 
-	private function prepareTempFolder():Void
+	private function addTextureFilesToAssetsList():Void
 	{
-		//creates a temp folder for spritesheet generation
-		PathHelper.mkdir (project.swfLiteSpritesheet.targetPath);
+		//related path from haxe/Export folder of the project --> f.i. Assets/spritesheets
+		var targetPathGeneratedSpriteSheet:String = project.swfSpritesheet.targetPath;
+		addTextureFileToAssetsList(targetPathGeneratedSpriteSheet, "atlas");
+		addTextureFileToAssetsList(targetPathGeneratedSpriteSheet, project.swfSpritesheet.outputFormat);
+	}
+
+	private function addTextureFileToAssetsList(targetPathGeneratedSpritesheet:String, extension:String):Void {
+		var filenameWithExtension:String = project.swfSpritesheet.fileName + "." + extension;
+		var targetPathFile:String = PathHelper.combine(targetPathGeneratedSpritesheet, filenameWithExtension);
+
+		//first check if file is already added to the assets list ( in case of spritesheet was already generated in a previous build
+		if (isAssetMarkedForExport(targetPathFile)) {
+			LogHelper.info("[SwfSpritesheet] asset already added: --> " + targetPathFile);
+		} else {
+			project.assets.push (new Asset (targetPathFile, targetPathFile));
+			LogHelper.info("[SwfSpritesheet] asset added: --> " + targetPathFile);
+		}
+	}
+
+	private function isAssetMarkedForExport(targetPath:String):Bool {
+		var isMarked:Bool = false;
+		for (asset in project.assets) {
+			if (asset.targetPath == targetPath) {
+				isMarked = true;
+				break;
+			}
+
+		}
+		return isMarked;
+	}
+
+	private function checkNumberOfFilesInTargetFolder():Void {
+		var targetPath:String = project.swfSpritesheet.targetPath;
+		var numberOfFiles:Int = PathHelper.readDirectory(targetPath).length;
+		if (numberOfFiles > 2) {
+			LogHelper.error("[SwfSpritesheet] more than 2 texture files in targetFolder, please remove unused texture files in --> " + targetPath);
+		}
 	}
 
 	

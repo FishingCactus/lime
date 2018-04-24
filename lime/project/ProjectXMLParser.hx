@@ -702,25 +702,25 @@ class ProjectXMLParser extends HXProject {
 		if (element.has.fileName) {
 			fileName = element.att.fileName;
 		} else {
-			LogHelper.warn("You didn't specify the attribute 'fileName' in element <swfSpritesheet/> --> default name: " + "'" + fileName + "'" + " will be used");
+			LogHelper.warn("[SwfSpritesheet] --> You didn't specify the attribute 'fileName' in element <swfSpritesheet/> --> default name: " + "'" + fileName + "'" + " will be used");
 		}
 
 		if (element.has.targetPath) {
 			targetPath = PathHelper.combine (basePath, substitute (element.att.targetPath));
 		} else {
-			LogHelper.error("You have to specify the attribute 'targetPath' in element <swfSpritesheet/>" );
+			LogHelper.error("[SwfSpritesheet] --> You have to specify the attribute 'targetPath' in element <swfSpritesheet/>" );
 		}
 
 		if (element.has.packConfigPath) {
 			packConfigPath = PathHelper.combine (basePath, substitute (element.att.packConfigPath));
 		} else {
-			LogHelper.error("You have to specify the attribute 'packConfigPath' in element <swfSpritesheet/> --> path to pack.json");
+			LogHelper.error("[SwfSpritesheet] --> You have to specify the attribute 'packConfigPath' in element <swfSpritesheet/> --> path to pack.json");
 		}
 
 		if (element.has.toolsPath) {
 			toolsPath = PathHelper.combine (basePath, substitute (element.att.toolsPath));
 		} else {
-			LogHelper.error("You have to specify the attribute 'toolsPath' in element <swfSpritesheet/>" );
+			LogHelper.error("[SwfSpritesheet] --> You have to specify the attribute 'toolsPath' in element <swfSpritesheet/>" );
 		}
 
 		if (element.has.active) {
@@ -728,7 +728,7 @@ class ProjectXMLParser extends HXProject {
 		}
 
 		Sys.putEnv ("swfSpritesheet", Std.string(active));
-		swfLiteSpritesheet = new SwfSpritesheet(fileName, targetPath, packConfigPath, toolsPath, active);
+		swfSpritesheet = new SwfSpritesheet(fileName, targetPath, packConfigPath, toolsPath, active);
 
 	}
 

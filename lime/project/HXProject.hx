@@ -34,7 +34,7 @@ class HXProject {
 	public var app:ApplicationData;
 	public var architectures:Array <Architecture>;
 	public var assets:Array <Asset>;
-	public var swfLiteSpritesheet:SwfSpritesheet;
+	public var swfSpritesheet:SwfSpritesheet;
 	public var certificate:Keystore;
 	public var command:String;
 	public var config:ConfigData;
@@ -229,7 +229,7 @@ class HXProject {
 		ObjectHelper.copyFields (app, project.app);
 		project.architectures = architectures.copy ();
 		project.assets = assets.copy ();
-		project.swfLiteSpritesheet = swfLiteSpritesheet.clone ();
+		project.swfSpritesheet = swfSpritesheet.clone ();
 
 		for (i in 0...assets.length) {
 			
@@ -914,7 +914,7 @@ class HXProject {
 			
 		}
 
-		context.swfLiteSpritesheet = swfLiteSpritesheet;
+		context.swfLiteSpritesheet = swfSpritesheet;
 
 		context.assets = new Array <Dynamic> ();
 		var fontAssets = new Array <Dynamic> ();
