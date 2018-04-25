@@ -629,9 +629,6 @@ class ProjectXMLParser extends HXProject {
 	}
 
 
-
-
-
 	private function parseAssetsElementDirectory (path:String, targetPath:String, include:String, exclude:String, type:AssetType, embed:Null<Bool>, glyphs:String, recursive:Bool):Void {
 
 		if (StringTools.endsWith (path, ".bundle")) {
@@ -693,42 +690,47 @@ class ProjectXMLParser extends HXProject {
 
 
 		var fileName:String = "swfSpritesheet"; // default value if fileName is not set
-		var targetPath:String = "";
-		var packConfigPath:String = "";
-		var toolsPath:String = "";
-		var active:Bool = true; // default is true if parameter has not been set
+		var targetDir:String = "";
+		var packConfigDir:String = "";
+		var toolsDir:String = "";
+		var enabled:Bool = true; // default is true if parameter has not been set
+		var preventRebuild:Bool = false; // default is false if parameter has not been set
 
 
 		if (element.has.fileName) {
 			fileName = element.att.fileName;
 		} else {
-			LogHelper.warn("[SwfSpritesheet] --> You didn't specify the attribute 'fileName' in element <swfSpritesheet/> --> default name: " + "'" + fileName + "'" + " will be used");
+			LogHelper.warn("[SwfSpritesheet] --> You didn't specify the attribute 'fileName' of element <swfSpritesheet/> --> default name: " + "'" + fileName + "'" + " will be used");
 		}
 
-		if (element.has.targetPath) {
-			targetPath = PathHelper.combine (basePath, substitute (element.att.targetPath));
+		if (element.has.targetDir) {
+			targetDir = PathHelper.combine (basePath, substitute (element.att.targetDir));
 		} else {
-			LogHelper.error("[SwfSpritesheet] --> You have to specify the attribute 'targetPath' in element <swfSpritesheet/>" );
+			LogHelper.error("[SwfSpritesheet] --> You have to specify the attribute 'targetDir' of element <swfSpritesheet/>" );
 		}
 
-		if (element.has.packConfigPath) {
-			packConfigPath = PathHelper.combine (basePath, substitute (element.att.packConfigPath));
+		if (element.has.packConfigDir) {
+			packConfigDir = PathHelper.combine (basePath, substitute (element.att.packConfigDir));
 		} else {
-			LogHelper.error("[SwfSpritesheet] --> You have to specify the attribute 'packConfigPath' in element <swfSpritesheet/> --> path to pack.json");
+			LogHelper.error("[SwfSpritesheet] --> You have to specify the attribute 'packConfigDir' of element <swfSpritesheet/> --> path to pack.json");
 		}
 
-		if (element.has.toolsPath) {
-			toolsPath = PathHelper.combine (basePath, substitute (element.att.toolsPath));
+		if (element.has.toolsDir) {
+			toolsDir = PathHelper.combine (basePath, substitute (element.att.toolsDir));
 		} else {
-			LogHelper.error("[SwfSpritesheet] --> You have to specify the attribute 'toolsPath' in element <swfSpritesheet/>" );
+			LogHelper.error("[SwfSpritesheet] --> You have to specify the attribute 'toolsDir' of element <swfSpritesheet/>" );
 		}
 
-		if (element.has.active) {
-			active = parseBool(element.att.active);
+		if (element.has.enabled) {
+			enabled = parseBool(element.att.enabled);
 		}
 
-		Sys.putEnv ("swfSpritesheet", Std.string(active));
-		swfSpritesheet = new SwfSpritesheet(fileName, targetPath, packConfigPath, toolsPath, active);
+		if (element.has.preventRebuild) {
+			preventRebuild = parseBool(element.att.preventRebuild);
+		}
+
+		Sys.putEnv ("swfSpritesheet", "true");
+		swfSpritesheet = new SwfSpritesheet(fileName, targetDir, packConfigDir, toolsDir, enabled, preventRebuild);
 
 	}
 

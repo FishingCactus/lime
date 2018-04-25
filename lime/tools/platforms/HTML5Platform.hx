@@ -1,9 +1,6 @@
 package lime.tools.platforms;
 
-import haxe.Json;
-import lime.tools.helpers.PathHelper;
-import lime.tools.helpers.PathHelper;
-import lime.project.Asset;
+import lime.tools.helpers.SwfSpritesheetHelper;
 import haxe.io.Path;
 import haxe.Template;
 import lime.tools.helpers.AssetHelper;
@@ -18,11 +15,6 @@ import lime.project.HXProject;
 import lime.project.PlatformTarget;
 import sys.io.File;
 import sys.FileSystem;
-
-
-typedef AtlasConfiguration = {
-	var outputFormat : String;
-}
 
 
 class HTML5Platform extends PlatformTarget {
@@ -155,10 +147,9 @@ class HTML5Platform extends PlatformTarget {
 
 
 		//start spritesheet generation before copy of assets from Assets to Export folder
-
 		if (Sys.getEnv("swfSpritesheet") == "true")
 		{
-			createSpritesheet();
+			SwfSpritesheetHelper.createSpritesheet(project);
 		}
 
 		
@@ -224,19 +215,15 @@ class HTML5Platform extends PlatformTarget {
 			
 		}
 
-
 		for (asset in project.assets) {
-
 
 			var path = PathHelper.combine (destination, asset.targetPath);
 
 			if (asset.type != AssetType.TEMPLATE) {
 
 				if (asset.type != AssetType.FONT) {
-					LogHelper.warn ("DESTINATION \"" + path+ "\"");
 					PathHelper.mkdir (Path.directory (path));
 					FileHelper.copyAssetIfNewer (asset, path);
-
 
 				} else if (useWebfonts) {
 					
@@ -291,139 +278,10 @@ class HTML5Platform extends PlatformTarget {
 			
 		}
 
-
-
 		AssetHelper.createManifest (project, PathHelper.combine (destination, "manifest"));
 
 	}
 
-	private function createSpritesheet():Void
-	{
-		var baseDir:String = Sys.getCwd();
-		var tempFolder:String = PathHelper.combine(baseDir, "TempSpritesheetGeneration");
-
-		// clean temp folder
-		prepareTempFolder(tempFolder);
-		// assets marked for spritesheet will be copied to tempFolder and removed from assets list
-		moveAssetsToTempFolder(tempFolder);
-		// copy packFile to tempFolder
-		copyPackFileToTempFolder(baseDir, tempFolder);
-		// parse pack.json for setting properties in swfSpritesheet
-		parsePackJson(tempFolder);
-		// create texture with gdxLib
-		packTextureWithCommandLineTool(baseDir, tempFolder);
-		// check if more than 2 files located in targetFolder
-		checkNumberOfFilesInTargetFolder();
-		// metaFile (*.atlas) and textureFile (*.png) will be added to the assets list
-		addTextureFilesToAssetsList();
-	}
-
-
-	private function prepareTempFolder(tempFolder:String):Void
-	{
-		PathHelper.removeDirectory(tempFolder);
-		PathHelper.mkdir(tempFolder);
-	}
-
-	private function moveAssetsToTempFolder(tempFolder:String):Void
-	{
-		var workingList:Array<Asset> = project.assets.copy();
-		for (asset in workingList) {
-			if (asset.markedForSpritesheet) {
-				// remove assets from assets list! --> don't need to be loaded after spritesheet generation anymore
-				project.assets.remove(asset);
-
-				// copy assets into temp folder
-				var targetPath = PathHelper.combine (tempFolder, asset.targetPath);
-				FileHelper.copyAssetIfNewer (asset, targetPath);
-			}
-		}
-	}
-
-	private function copyPackFileToTempFolder(baseDir:String, tempFolder:String):Void {
-		var packConfigPath:String = PathHelper.combine(baseDir, project.swfSpritesheet.packConfigPath);
-		var packFileName:String = "pack.json";
-		var sourcePackFile:String = PathHelper.combine(packConfigPath, packFileName);
-		var targetPackFile:String = PathHelper.combine(tempFolder, packFileName);
-
-		if (FileSystem.exists(sourcePackFile)) {
-			FileHelper.copyFile(sourcePackFile, targetPackFile);
-		} else {
-			LogHelper.error("[SwfSpritesheet] could not find pack.json: --> " + sourcePackFile);
-		}
-	}
-
-	private function parsePackJson(tempFolder:String):Void {
-
-		var pathToPackFile:String = PathHelper.combine(tempFolder, "pack.json");
-		var value = File.getContent(pathToPackFile);
-		var atlasConfiguration:AtlasConfiguration = Json.parse(value);
-		project.swfSpritesheet.outputFormat = atlasConfiguration.outputFormat;
-	}
-
-	private function packTextureWithCommandLineTool(baseDir:String, tempFolder:String):Void
-	{
-		var toolsDir:String = PathHelper.combine(baseDir, project.swfSpritesheet.toolsPath);
-		var sourcePath:String = tempFolder;
-		var targetPath:String = PathHelper.combine(baseDir, project.swfSpritesheet.targetPath);
-
-		var argList:Array<String> = [];
-		argList.push("-cp");
-		argList.push(PathHelper.combine(toolsDir, "gdx.jar:") + PathHelper.combine(toolsDir, "gdx-tools.jar"));
-		argList.push("com.badlogic.gdx.tools.texturepacker.TexturePacker");
-		argList.push(sourcePath);
-		argList.push(targetPath);
-		argList.push(project.swfSpritesheet.fileName);
-
-		var result:Int = Sys.command("java", argList);
-		if (result != 0) {
-			LogHelper.error("[SwfSpritesheet] Could not pack texture: --> " + argList.join(" "));
-		}
-	}
-
-
-	private function addTextureFilesToAssetsList():Void
-	{
-		//related path from haxe/Export folder of the project --> f.i. Assets/spritesheets
-		var targetPathGeneratedSpriteSheet:String = project.swfSpritesheet.targetPath;
-		addTextureFileToAssetsList(targetPathGeneratedSpriteSheet, "atlas");
-		addTextureFileToAssetsList(targetPathGeneratedSpriteSheet, project.swfSpritesheet.outputFormat);
-	}
-
-	private function addTextureFileToAssetsList(targetPathGeneratedSpritesheet:String, extension:String):Void {
-		var filenameWithExtension:String = project.swfSpritesheet.fileName + "." + extension;
-		var targetPathFile:String = PathHelper.combine(targetPathGeneratedSpritesheet, filenameWithExtension);
-
-		//first check if file is already added to the assets list ( in case of spritesheet was already generated in a previous build
-		if (isAssetMarkedForExport(targetPathFile)) {
-			LogHelper.info("[SwfSpritesheet] asset already added: --> " + targetPathFile);
-		} else {
-			project.assets.push (new Asset (targetPathFile, targetPathFile));
-			LogHelper.info("[SwfSpritesheet] asset added: --> " + targetPathFile);
-		}
-	}
-
-	private function isAssetMarkedForExport(targetPath:String):Bool {
-		var isMarked:Bool = false;
-		for (asset in project.assets) {
-			if (asset.targetPath == targetPath) {
-				isMarked = true;
-				break;
-			}
-
-		}
-		return isMarked;
-	}
-
-	private function checkNumberOfFilesInTargetFolder():Void {
-		var targetPath:String = project.swfSpritesheet.targetPath;
-		var numberOfFiles:Int = PathHelper.readDirectory(targetPath).length;
-		if (numberOfFiles > 2) {
-			LogHelper.error("[SwfSpritesheet] more than 2 texture files in targetFolder, please remove unused texture files in --> " + targetPath);
-		}
-	}
-
-	
 	@ignore public override function install ():Void {}
 	@ignore public override function rebuild ():Void {}
 	@ignore public override function trace ():Void {}
