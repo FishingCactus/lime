@@ -725,12 +725,21 @@ class ProjectXMLParser extends HXProject {
 			enabled = parseBool(element.att.enabled);
 		}
 
-		if (element.has.preventRebuild) {
-			preventRebuild = parseBool(element.att.preventRebuild);
-		}
-
 		Sys.putEnv ("swfSpritesheet", "true");
 		swfSpritesheet = new SwfSpritesheet(fileName, targetDir, packConfigDir, toolsDir, enabled, preventRebuild);
+
+		//TODO check if there is a change from enable flag --> in case add -clean flag to remove export folder!
+
+		LogHelper.info(haxedefs.toString());
+		LogHelper.info(haxeflags.toString());
+		LogHelper.info(defines.toString());
+		LogHelper.info(environment.toString());
+		LogHelper.info(targetFlags.toString());
+
+		if (!targetFlags.exists("clean")) {
+			LogHelper.info("Great, added flag");
+			targetFlags.set("clean", "true");
+		}
 
 	}
 

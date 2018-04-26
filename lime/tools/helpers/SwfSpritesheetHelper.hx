@@ -33,6 +33,7 @@ class SwfSpritesheetHelper {
 
 	private static var assets:Array<Asset>;
 	private static var swfSpritesheet:SwfSpritesheet;
+	private static var haxedefs:Map <String, Dynamic>;
 	private static var baseDir:String;
 	private static var tempBaseDir:String;
 	private static var tempBuildDir:String;
@@ -44,6 +45,7 @@ class SwfSpritesheetHelper {
 	{
 		assets = project.assets;
 		swfSpritesheet = project.swfSpritesheet;
+		haxedefs = project.haxedefs;
 		baseDir = Sys.getCwd();
 		tempBaseDir = PathHelper.combine(baseDir, "TempSpritesheetGeneration");
 		tempBuildDir = PathHelper.combine(tempBaseDir, "build");
@@ -60,6 +62,7 @@ class SwfSpritesheetHelper {
 
 		var executionCommand:ExecutionCommand = getExecutionCommand();
 		LogHelper.info("[SwfSpritesheet] execution command is: --> " + Std.string(executionCommand));
+		LogHelper.info("[SwfSpritesheet] preventSwfTextureBuild --> " + Std.string(haxedefs.exists("preventSwfTextureBuild")));
 
 		switch(executionCommand) {
 			case ExecutionCommand.BUILD:
@@ -119,19 +122,10 @@ class SwfSpritesheetHelper {
 		var executionCommand:ExecutionCommand = ExecutionCommand.BUILD;
 		if (!swfSpritesheet.enabled) {
 			executionCommand = ExecutionCommand.DISABLE;
-		} else if (swfSpritesheet.preventRebuild && isCurrentTaskRebuild()) {
+		} else if (haxedefs.exists("preventSwfTextureBuild") && getNumberOfFilesInTargetDirectory() != 0) {
 			executionCommand = ExecutionCommand.IGNORE;
 		}
 		return executionCommand;
-	}
-
-	private static function isCurrentTaskRebuild():Bool {
-		//check if current build is a rebuild of the existing atlas
-		if (atlasBuildCache.metaFilePath == getFullTargetFilePath("atlas") && atlasBuildCache.textureFilePath == getFullTargetFilePath(swfSpritesheet.outputFormat)) {
-			return true;
-		} else {
-			return false;
-		}
 	}
 
 	private static function executeBuildCommand():Void {
@@ -266,15 +260,24 @@ class SwfSpritesheetHelper {
 	}
 
 	private static function checkNumberOfFilesInTargetDirectory():Void {
-		var targetDir:String = swfSpritesheet.targetDir;
-		var numberOfFiles:Int = PathHelper.readDirectory(targetDir).length;
-		if (numberOfFiles == 0 && swfSpritesheet.preventRebuild) {
-			LogHelper.error("[SwfSpritesheet] there are no generated texture files, set attribute 'preventRebuild' of element <swfSpritesheet/> to false an build again" );
+		var numberOfFiles:Int = getNumberOfFilesInTargetDirectory();
+		if (getNumberOfFilesInTargetDirectory() == 0) {
+			LogHelper.error("[SwfSpritesheet] there are no generated texture files, build with compilerflag '-clean' and without haxedef 'preventSwfTextureBuild'" );
 		} else if (numberOfFiles > 2) {
-			LogHelper.error("[SwfSpritesheet] more than 2 texture files in target directory, please remove unused texture files in --> " + targetDir);
+			LogHelper.error("[SwfSpritesheet] more than 2 texture files in target directory, please remove unused texture files in --> " + swfSpritesheet.targetDir);
 
 		}
 
+	}
+
+	private static function getNumberOfFilesInTargetDirectory():Int {
+		var numberOfFiles:Int = 0;
+		var targetDir:String = swfSpritesheet.targetDir;
+		var filesList:Array<String> = PathHelper.readDirectory(targetDir);
+		if (filesList != null) {
+			numberOfFiles = PathHelper.readDirectory(targetDir).length;
+		}
+		return numberOfFiles;
 	}
 
 	private static function deleteCacheFile():Void
