@@ -17,6 +17,7 @@ typedef AtlasConfiguration = {
 typedef AtlasBuildCache = {
 	var metaFilePath:String;
 	var textureFilePath:String;
+	var enabled:Bool;
 }
 
 enum ExecutionCommand {
@@ -82,7 +83,7 @@ class SwfSpritesheetHelper {
 			atlasBuildCache = Json.parse(value);
 		} else {
 			// first build
-			atlasBuildCache = {metaFilePath:"", textureFilePath:""};
+			atlasBuildCache = {metaFilePath:"", textureFilePath:"", enabled:true};
 		}
 		return atlasBuildCache;
 	}
@@ -147,15 +148,16 @@ class SwfSpritesheetHelper {
 	private static function executeDisableCommand():Void {
 		// delete existing target files and remove assets from assets list
 		deleteExistingTextureFiles();
-		// delete cache file
-		deleteCacheFile();
+		// save current enabled flag rebuild file validation
+		saveCurrentTargets();
 	}
 
 	private static function executeIgnoreCommand():Void {
+		// assets marked for spritesheet will be copied to temp directory and removed from assets list
+		moveAssetsToTempDirectory();
+
 		checkNumberOfFilesInTargetDirectory();
 	}
-
-
 
 
 	private static function deleteExistingTextureFiles():Void {
@@ -217,6 +219,7 @@ class SwfSpritesheetHelper {
 	private static function saveCurrentTargets():Void {
 		atlasBuildCache.metaFilePath = getFullTargetFilePath("atlas");
 		atlasBuildCache.textureFilePath =  getFullTargetFilePath(swfSpritesheet.outputFormat);
+		atlasBuildCache.enabled = swfSpritesheet.enabled;
 		var fileContent:String = Json.stringify(atlasBuildCache);
 		File.saveContent(pathToCacheFile, fileContent);
 	}

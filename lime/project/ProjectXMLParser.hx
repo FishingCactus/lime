@@ -1,5 +1,7 @@
 package lime.project;
 
+import haxe.Json;
+import lime.tools.helpers.SwfSpritesheetHelper.AtlasBuildCache;
 import Std;
 import haxe.io.Path;
 import haxe.xml.Fast;
@@ -736,11 +738,31 @@ class ProjectXMLParser extends HXProject {
 		LogHelper.info(environment.toString());
 		LogHelper.info(targetFlags.toString());
 
-		if (!targetFlags.exists("clean")) {
-			LogHelper.info("Great, added flag");
-			targetFlags.set("clean", "true");
+
+		if (hasEnabledFlagChanged()) {
+			if (!targetFlags.exists("clean")) {
+				targetFlags.set("clean", "true");
+				LogHelper.info("[SwfSpritesheet] --> added 'clean' to targetFlags to trigger build" );
+			}
 		}
 
+
+	}
+
+	private function hasEnabledFlagChanged():Bool {
+		var baseDir:String = Sys.getCwd();
+		var tempBaseDir:String = PathHelper.combine(baseDir, "TempSpritesheetGeneration");
+		var pathToCacheFile:String = PathHelper.combine(tempBaseDir, "atlasBuildCache.json");
+		var atlasBuildCache:AtlasBuildCache;
+
+		if (FileSystem.exists(pathToCacheFile)) {
+			var value = File.getContent(pathToCacheFile);
+			atlasBuildCache = Json.parse(value);
+		} else {
+			atlasBuildCache = {metaFilePath:"", textureFilePath:"", enabled:true};
+		}
+
+		return (atlasBuildCache.enabled != swfSpritesheet.enabled);
 	}
 
 
