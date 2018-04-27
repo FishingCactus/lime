@@ -19,7 +19,6 @@ import lime.project.HXProject;
 import sys.io.File;
 import sys.FileSystem;
 
-
 class ProjectXMLParser extends HXProject {
 
 
@@ -696,7 +695,7 @@ class ProjectXMLParser extends HXProject {
 		var packConfigDir:String = "";
 		var toolsDir:String = "";
 		var enabled:Bool = true; // default is true if parameter has not been set
-		var preventRebuild:Bool = false; // default is false if parameter has not been set
+		var excludeList:Array<Int> = new Array<Int>();
 
 
 		if (element.has.fileName) {
@@ -727,16 +726,21 @@ class ProjectXMLParser extends HXProject {
 			enabled = parseBool(element.att.enabled);
 		}
 
+		if (element.has.excludeList) {
+			var excludeListString:String = element.att.excludeList;
+			var excludeListStringArray:Array<String> = excludeListString.split(",");
+
+			for (i in 0...excludeListStringArray.length) {
+				var bitmapId:String = excludeListStringArray[i];
+				excludeList.push(Std.parseInt(bitmapId));
+			}
+
+
+			LogHelper.info("[SwfSpritesheet] --> exclude list: " + excludeList.toString() );
+		}
+
 		Sys.putEnv ("swfSpritesheet", "true");
-		swfSpritesheet = new SwfSpritesheet(fileName, targetDir, packConfigDir, toolsDir, enabled, preventRebuild);
-
-		//TODO check if there is a change from enable flag --> in case add -clean flag to remove export folder!
-
-		LogHelper.info(haxedefs.toString());
-		LogHelper.info(haxeflags.toString());
-		LogHelper.info(defines.toString());
-		LogHelper.info(environment.toString());
-		LogHelper.info(targetFlags.toString());
+		swfSpritesheet = new SwfSpritesheet(fileName, targetDir, packConfigDir, toolsDir, enabled, excludeList);
 
 
 		if (hasEnabledFlagChanged()) {
