@@ -1,5 +1,7 @@
 package lime.tools.platforms;
 
+import lime.tools.helpers.PngCompressionHelper;
+import lime.project.PngCompression;
 import lime.tools.helpers.SwfSpritesheetHelper;
 import haxe.io.Path;
 import haxe.Template;
@@ -248,6 +250,12 @@ class HTML5Platform extends PlatformTarget {
 			}
 			
 		}
+
+
+
+		PngCompressionHelper.compressImages(project, destination);
+
+
 		
 		FileHelper.recursiveCopyTemplate (project.templatePaths, "html5/template", destination, context);
 		

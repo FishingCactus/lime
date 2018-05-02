@@ -35,6 +35,7 @@ class HXProject {
 	public var architectures:Array <Architecture>;
 	public var assets:Array <Asset>;
 	public var swfSpritesheet:SwfSpritesheet;
+	public var pngCompression:PngCompression;
 	public var certificate:Keystore;
 	public var command:String;
 	public var config:ConfigData;
@@ -230,6 +231,7 @@ class HXProject {
 		project.architectures = architectures.copy ();
 		project.assets = assets.copy ();
 		project.swfSpritesheet = swfSpritesheet.clone ();
+		project.pngCompression = pngCompression.clone ();
 
 		for (i in 0...assets.length) {
 			
