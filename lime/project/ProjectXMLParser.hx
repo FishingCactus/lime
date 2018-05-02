@@ -692,6 +692,7 @@ class ProjectXMLParser extends HXProject {
 
 		var fileName:String = "swfSpritesheet"; // default value if fileName is not set
 		var targetDir:String = "";
+		var pathToClassicFramework:String = PathHelper.getHaxelib(new Haxelib("duell_classic-framework"));
 		var packConfigDir:String = "";
 		var toolsDir:String = "";
 		var enabled:Bool = true; // default is true if parameter has not been set
@@ -701,7 +702,7 @@ class ProjectXMLParser extends HXProject {
 		if (element.has.fileName) {
 			fileName = element.att.fileName;
 		} else {
-			LogHelper.warn("[SwfSpritesheet] --> You didn't specify the attribute 'fileName' of element <swfSpritesheet/> --> default name: " + "'" + fileName + "'" + " will be used");
+			LogHelper.info("[SwfSpritesheet] --> You didn't specify the attribute 'fileName' of element <swfSpritesheet/> --> default name: " + "'" + fileName + "'" + " will be used");
 		}
 
 		if (element.has.targetDir) {
@@ -711,15 +712,15 @@ class ProjectXMLParser extends HXProject {
 		}
 
 		if (element.has.packConfigDir) {
-			packConfigDir = PathHelper.combine (basePath, substitute (element.att.packConfigDir));
+			packConfigDir = getDir(basePath, substitute (element.att.packConfigDir));
 		} else {
-			LogHelper.error("[SwfSpritesheet] --> You have to specify the attribute 'packConfigDir' of element <swfSpritesheet/> --> path to pack.json");
+			packConfigDir = getDir(pathToClassicFramework, "Tools/swfSpritesheet/config");
 		}
 
 		if (element.has.toolsDir) {
-			toolsDir = PathHelper.combine (basePath, substitute (element.att.toolsDir));
+			toolsDir = getDir(basePath, substitute (element.att.toolsDir));
 		} else {
-			LogHelper.error("[SwfSpritesheet] --> You have to specify the attribute 'toolsDir' of element <swfSpritesheet/>" );
+			toolsDir = getDir(pathToClassicFramework, "Tools/swfSpritesheet/libs");
 		}
 
 		if (element.has.enabled) {
@@ -751,6 +752,14 @@ class ProjectXMLParser extends HXProject {
 		}
 
 
+	}
+
+	private function getDir(baseDir:String, relativeDir:String):String {
+		var path:String = PathHelper.combine (baseDir, relativeDir);
+		if (!FileSystem.exists(path)) {
+			LogHelper.error("[SwfSpritesheet] --> the following path does not exists: " + path);
+		}
+		return path;
 	}
 
 	private function hasEnabledFlagChanged():Bool {
