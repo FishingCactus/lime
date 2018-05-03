@@ -31,6 +31,14 @@ class PngCompressionHelper {
 
 			}
 		}
+
+
+	}
+
+	public function checkIfImagePathesValid():Void {
+		for (imagePath in pngCompression.imagePathList) {
+
+		}
 	}
 
 

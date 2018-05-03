@@ -781,33 +781,43 @@ class ProjectXMLParser extends HXProject {
 
 	private function parsePNGCompressionElement (element:Fast, basePath:String = "", isTemplate:Bool = false):Void {
 
-		var enabled:Bool = true; //default is true if parameter has not been set
+		var enabledGlobal:Bool = true; //default is true if parameter has not been set
 		var imagePathList:Array<String> = new Array<String>();
 		var pathToClassicFramework:String = PathHelper.getHaxelib(new Haxelib("duell_classic-framework"));
 		var toolsDir:String = getDir(pathToClassicFramework, "Tools/pngCompression/libs");
 
 
 		if (element.has.enabled) {
-			enabled = parseBool(element.att.enabled);
+			enabledGlobal = parseBool(element.att.enabled);
 		}
 
-		for (childElement in element.elements) {
-			var isValid = isValidElement (childElement, "");
-			if (isValid) {
+		if (enabledGlobal) {
 
-				if(childElement.name == "image")
-				{
-					if (childElement.has.path) {
-						var path:String = substitute(childElement.att.path);
-						imagePathList.push(path);
-						LogHelper.info("[PNGCompression] --> image: " + path);
+			for (childElement in element.elements) {
+				var isValid = isValidElement (childElement, "");
+				if (isValid) {
 
+					if(childElement.name == "image")
+					{
+						if (childElement.has.path) {
+							var enabled:Bool = true;
+							if (childElement.has.enabled) {
+								enabled = parseBool(childElement.att.enabled);
+							}
+
+							if (enabled) {
+								var path:String = substitute(childElement.att.path);
+								imagePathList.push(path);
+								LogHelper.info("[PNGCompression] --> image: " + path);
+							}
+
+						}
 					}
 				}
 			}
 		}
 
-		pngCompression = new PngCompression(imagePathList, toolsDir, enabled);
+		pngCompression = new PngCompression(imagePathList, toolsDir, enabledGlobal);
 
 	}
 

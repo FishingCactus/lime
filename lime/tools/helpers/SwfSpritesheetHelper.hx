@@ -204,6 +204,7 @@ class SwfSpritesheetHelper {
 		var targetDir:String = PathHelper.combine(baseDir, swfSpritesheet.targetDir);
 
 		var argList:Array<String> = [];
+		argList.push("-Djava.awt.headless=true");
 		argList.push("-cp");
 		argList.push(PathHelper.combine(toolsDir, "gdx.jar:") + PathHelper.combine(toolsDir, "gdx-tools.jar"));
 		argList.push("com.badlogic.gdx.tools.texturepacker.TexturePacker");
