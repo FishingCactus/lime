@@ -1,5 +1,6 @@
 package lime.tools.helpers;
 
+import lime.tools.helpers.PathHelper;
 import lime.project.Asset;
 import lime.project.SwfSpritesheet;
 import lime.project.HXProject;
@@ -48,7 +49,7 @@ class SwfSpritesheetHelper {
 		swfSpritesheet = project.swfSpritesheet;
 		haxedefs = project.haxedefs;
 		baseDir = Sys.getCwd();
-		tempBaseDir = PathHelper.combine(baseDir, "TempSpritesheetGeneration");
+		tempBaseDir = PathHelper.combine(PathHelper.combine(baseDir, ".temp"), "swfSpritesheet");
 		tempBuildDir = PathHelper.combine(tempBaseDir, "build");
 		pathToCacheFile = PathHelper.combine(tempBaseDir, "atlasBuildCache.json");
 		atlasBuildCache = readCacheFile();

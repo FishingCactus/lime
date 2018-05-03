@@ -764,7 +764,7 @@ class ProjectXMLParser extends HXProject {
 
 	private function hasEnabledFlagChanged():Bool {
 		var baseDir:String = Sys.getCwd();
-		var tempBaseDir:String = PathHelper.combine(baseDir, "TempSpritesheetGeneration");
+		var tempBaseDir:String = PathHelper.combine(PathHelper.combine(baseDir, ".temp"), "swfSpritesheet"); //TODO code doubled
 		var pathToCacheFile:String = PathHelper.combine(tempBaseDir, "atlasBuildCache.json");
 		var atlasBuildCache:AtlasBuildCache;
 
