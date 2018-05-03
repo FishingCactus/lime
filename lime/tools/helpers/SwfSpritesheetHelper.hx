@@ -212,6 +212,8 @@ class SwfSpritesheetHelper {
 		argList.push(targetDir);
 		argList.push(swfSpritesheet.fileName);
 
+		LogHelper.info("[SwfSpritesheet] argList: --> " + argList.join(" "));
+
 		var result:Int = Sys.command("java", argList);
 		if (result != 0) {
 			LogHelper.error("[SwfSpritesheet] Could not pack texture: --> " + argList.join(" "));
