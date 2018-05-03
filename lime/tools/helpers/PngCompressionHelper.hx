@@ -36,14 +36,14 @@ class PngCompressionHelper {
 
 	private static function compressImage(targetPath:String):Void
 	{
-		LogHelper.info("[PNGCompression] start compression: " + pngCompression.toolsDir);
-
 		var toolsPath:String = PathHelper.combine(pngCompression.toolsDir, "pngquant-mac");
 		var argList:Array<String> = [];
 		argList.push(targetPath);
 		argList.push("--output");
 		argList.push(targetPath);
 		argList.push("--force");
+		argList.push("--verbose");
+		argList.push("--strip");
 
 		var result:Int = Sys.command(toolsPath, argList);
 
