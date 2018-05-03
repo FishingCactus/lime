@@ -5,6 +5,7 @@ import lime.project.HXProject;
 import lime.project.PngCompression;
 import lime.tools.helpers.LogHelper;
 import lime.tools.helpers.PathHelper;
+import sys.FileSystem;
 
 class PngCompressionHelper {
 
@@ -17,6 +18,8 @@ class PngCompressionHelper {
 	{
 		pngCompression = project.pngCompression;
 		baseDir = Sys.getCwd();
+
+		checkIfImagePathesValid(exportBaseDir);
 
 		for (asset in project.assets) {
 
@@ -35,9 +38,13 @@ class PngCompressionHelper {
 
 	}
 
-	public function checkIfImagePathesValid():Void {
+	private static function checkIfImagePathesValid(exportBaseDir:String):Void {
+		var fullExportDir:String = PathHelper.combine (baseDir, exportBaseDir);
 		for (imagePath in pngCompression.imagePathList) {
-
+			var path:String = PathHelper.combine (fullExportDir, imagePath);
+			if (!FileSystem.exists(path)) {
+				LogHelper.error("[PNGCompression] --> path to file does not exist, please check attribute 'path' of <image/> in <pngCompression/>: " + path );
+			}
 		}
 	}
 
