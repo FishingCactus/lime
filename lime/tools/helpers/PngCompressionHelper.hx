@@ -1,5 +1,6 @@
 package lime.tools.helpers;
 
+import lime.project.Platform;
 import lime.project.AssetType;
 import lime.project.HXProject;
 import lime.project.PngCompression;
@@ -34,8 +35,6 @@ class PngCompressionHelper {
 
 			}
 		}
-
-
 	}
 
 	private static function checkIfImagePathesValid(exportBaseDir:String):Void {
@@ -49,8 +48,10 @@ class PngCompressionHelper {
 	}
 
 
+
 	private static function compressImage(targetPath:String):Void
 	{
+		var fileName:String = getPlatformFileName();
 		var toolsPath:String = PathHelper.combine(pngCompression.toolsDir, "pngquant-mac");
 		var argList:Array<String> = [];
 		argList.push(targetPath);
@@ -70,5 +71,17 @@ class PngCompressionHelper {
 	}
 
 
+	private static function getPlatformFileName():String {
+		var fileName:String = "";
+		switch (PlatformHelper.hostPlatform) {
+			case Platform.WINDOWS:
+				fileName = "pngquant-win.exe";
+			case Platform.MAC:
+				fileName = "pngquant-mac";
+			default:
+				LogHelper.error("[PNGCompression] Platform does not support pngquant: --> " + PlatformHelper.hostPlatform);
+		}
+		return fileName;
+	}
 
 }
