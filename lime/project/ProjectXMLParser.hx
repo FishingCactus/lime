@@ -1,5 +1,6 @@
 package lime.project;
 
+import lime.project.SwfSpritesheet.ExcludeItem;
 import haxe.Json;
 import lime.tools.helpers.SwfSpritesheetHelper.AtlasBuildCache;
 import Std;
@@ -696,8 +697,7 @@ class ProjectXMLParser extends HXProject {
 		var packConfigDir:String = "";
 		var toolsDir:String = "";
 		var enabled:Bool = true; // default is true if parameter has not been set
-		var excludeList:Array<Int> = new Array<Int>();
-
+		var excludeList:List<ExcludeItem> = new List<ExcludeItem>();
 
 		if (element.has.fileName) {
 			fileName = element.att.fileName;
@@ -727,18 +727,22 @@ class ProjectXMLParser extends HXProject {
 			enabled = parseBool(element.att.enabled);
 		}
 
-		if (element.has.excludeList) {
-			var excludeListString:String = element.att.excludeList;
-			var excludeListStringArray:Array<String> = excludeListString.split(",");
-
-			for (i in 0...excludeListStringArray.length) {
-				var bitmapId:String = excludeListStringArray[i];
-				excludeList.push(Std.parseInt(bitmapId));
+		for (childElement in element.elements) {
+			var isValid = isValidElement (childElement, "");
+			if (isValid) {
+				if(childElement.name == "exclude")
+				{
+					if (childElement.has.path) {
+						var path:String = substitute(childElement.att.path);
+						excludeList.add(new ExcludeItem(path));
+					}
+				}
 			}
-
-
-			LogHelper.info("[SwfSpritesheet] --> exclude list: " + excludeList.toString() );
 		}
+
+		LogHelper.info("[SwfSpritesheet] --> exclude list: " + excludeList.toString() );
+
+
 
 		Sys.putEnv ("swfSpritesheet", "true");
 		swfSpritesheet = new SwfSpritesheet(fileName, targetDir, packConfigDir, toolsDir, enabled, excludeList);

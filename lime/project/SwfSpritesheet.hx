@@ -1,6 +1,17 @@
 package lime.project;
 
 
+
+class ExcludeItem {
+
+	public var path:String;
+
+	public function new (path:String) {
+		this.path = path;
+	}
+}
+
+
 class SwfSpritesheet {
 	
 	
@@ -11,10 +22,12 @@ class SwfSpritesheet {
 	public var enabled:Bool;
 	/** will be parsed and set from pack.json, default is "png" */
 	public var outputFormat:String;
-	public var excludeList:Array<Int>;
+	public var excludeList:List<ExcludeItem>;
 
 
-	public function new (fileName:String, targetDir:String, packConfigDir:String, toolsDir:String, enabled:Bool, excludeList:Array<Int>) {
+
+
+	public function new (fileName:String, targetDir:String, packConfigDir:String, toolsDir:String, enabled:Bool, excludeList:List<ExcludeItem>) {
 		
 		this.fileName = fileName;
 		this.targetDir = targetDir;
