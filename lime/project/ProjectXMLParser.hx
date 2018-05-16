@@ -3,6 +3,7 @@ package lime.project;
 import lime.project.SwfSpritesheet.ExcludeItem;
 import haxe.Json;
 import lime.tools.helpers.SwfSpritesheetHelper.AtlasBuildCache;
+import lime.tools.helpers.SwfSpritesheetHelper;
 import Std;
 import haxe.io.Path;
 import haxe.xml.Fast;
@@ -690,41 +691,31 @@ class ProjectXMLParser extends HXProject {
 
 	private function parseSwfSpritesheetElement (element:Fast, basePath:String = "", isTemplate:Bool = false):Void {
 
-
-		var fileName:String = "swfSpritesheet"; // default value if fileName is not set
-		var targetDir:String = "";
-		var pathToClassicFramework:String = PathHelper.getHaxelib(new Haxelib("duell_classic-framework"));
-		var packConfigDir:String = "";
-		var toolsDir:String = "";
-		var enabled:Bool = true; // default is true if parameter has not been set
-		var excludeList:List<ExcludeItem> = new List<ExcludeItem>();
+		var pathToLime:String = PathHelper.getHaxelib(new Haxelib("lime"));
+		swfSpritesheet.toolsDir = getDir(pathToLime, "tools/swfSpritesheet/libs");
 
 		if (element.has.fileName) {
-			fileName = element.att.fileName;
+			swfSpritesheet.fileName = element.att.fileName;
 		} else {
-			LogHelper.info("[SwfSpritesheet] --> You didn't specify the attribute 'fileName' of element <swfSpritesheet/> --> default name: " + "'" + fileName + "'" + " will be used");
+			LogHelper.info('[SwfSpritesheet] --> You did not specify the attribute fileName of element <swfSpritesheet/> --> default name: "${swfSpritesheet.fileName}" will be used');
 		}
 
 		if (element.has.targetDir) {
-			targetDir = PathHelper.combine (basePath, substitute (element.att.targetDir));
+			swfSpritesheet.targetDir = PathHelper.combine (basePath, substitute (element.att.targetDir));
 		} else {
 			LogHelper.error("[SwfSpritesheet] --> You have to specify the attribute 'targetDir' of element <swfSpritesheet/>" );
 		}
 
 		if (element.has.packConfigDir) {
-			packConfigDir = getDir(basePath, substitute (element.att.packConfigDir));
+			swfSpritesheet.packConfigDir = getDir(basePath, substitute (element.att.packConfigDir));
 		} else {
-			packConfigDir = getDir(pathToClassicFramework, "Tools/swfSpritesheet/config");
-		}
-
-		if (element.has.toolsDir) {
-			toolsDir = getDir(basePath, substitute (element.att.toolsDir));
-		} else {
-			toolsDir = getDir(pathToClassicFramework, "Tools/swfSpritesheet/libs");
+			swfSpritesheet.packConfigDir = getDir(pathToLime, "tools/swfSpritesheet/config");
 		}
 
 		if (element.has.enabled) {
-			enabled = parseBool(element.att.enabled);
+			swfSpritesheet.enabled = parseBool(element.att.enabled);
+		} else {
+			swfSpritesheet.enabled = true; // default is true if parameter has not been set
 		}
 
 		for (childElement in element.elements) {
@@ -734,18 +725,14 @@ class ProjectXMLParser extends HXProject {
 				{
 					if (childElement.has.path) {
 						var path:String = substitute(childElement.att.path);
-						excludeList.add(new ExcludeItem(path));
+						swfSpritesheet.excludeList.add(new ExcludeItem(path));
 					}
 				}
 			}
 		}
 
-		LogHelper.info("[SwfSpritesheet] --> exclude list: " + excludeList.toString() );
-
-
-
+		LogHelper.info("[SwfSpritesheet] --> exclude list: " + swfSpritesheet.excludeList.toString() );
 		Sys.putEnv ("swfSpritesheet", "true");
-		swfSpritesheet = new SwfSpritesheet(fileName, targetDir, packConfigDir, toolsDir, enabled, excludeList);
 
 
 		if (hasEnabledFlagChanged()) {
@@ -768,16 +755,9 @@ class ProjectXMLParser extends HXProject {
 
 	private function hasEnabledFlagChanged():Bool {
 		var baseDir:String = Sys.getCwd();
-		var tempBaseDir:String = PathHelper.combine(PathHelper.combine(baseDir, ".temp"), "swfSpritesheet"); //TODO code doubled
+		var tempBaseDir:String = PathHelper.combine(PathHelper.combine(baseDir, ".temp"), "swfSpritesheet");
 		var pathToCacheFile:String = PathHelper.combine(tempBaseDir, "atlasBuildCache.json");
-		var atlasBuildCache:AtlasBuildCache;
-
-		if (FileSystem.exists(pathToCacheFile)) {
-			var value = File.getContent(pathToCacheFile);
-			atlasBuildCache = Json.parse(value);
-		} else {
-			atlasBuildCache = {metaFilePath:"", textureFilePath:"", enabled:true};
-		}
+		var atlasBuildCache:AtlasBuildCache = SwfSpritesheetHelper.readCacheFile(pathToCacheFile);
 
 		return (atlasBuildCache.enabled != swfSpritesheet.enabled);
 	}
@@ -785,17 +765,16 @@ class ProjectXMLParser extends HXProject {
 
 	private function parsePNGCompressionElement (element:Fast, basePath:String = "", isTemplate:Bool = false):Void {
 
-		var enabledGlobal:Bool = true; //default is true if parameter has not been set
-		var imagePathList:Array<String> = new Array<String>();
-		var pathToClassicFramework:String = PathHelper.getHaxelib(new Haxelib("duell_classic-framework"));
-		var toolsDir:String = getDir(pathToClassicFramework, "Tools/pngCompression/libs");
-
+		var pathToLime:String = PathHelper.getHaxelib(new Haxelib("lime"));
+		pngCompression.toolsDir = getDir(pathToLime, "tools/pngCompression/libs");
 
 		if (element.has.enabled) {
-			enabledGlobal = parseBool(element.att.enabled);
+			pngCompression.enabled = parseBool(element.att.enabled);
+		} else {
+			pngCompression.enabled = true; //default is true if parameter has not been set
 		}
 
-		if (enabledGlobal) {
+		if (pngCompression.enabled) {
 
 			for (childElement in element.elements) {
 				var isValid = isValidElement (childElement, "");
@@ -811,7 +790,7 @@ class ProjectXMLParser extends HXProject {
 
 							if (enabled) {
 								var path:String = substitute(childElement.att.path);
-								imagePathList.push(path);
+								pngCompression.imagePathList.push(path);
 								LogHelper.info("[PNGCompression] --> image: " + path);
 							}
 
@@ -820,9 +799,6 @@ class ProjectXMLParser extends HXProject {
 				}
 			}
 		}
-
-		pngCompression = new PngCompression(imagePathList, toolsDir, enabledGlobal);
-
 	}
 
 

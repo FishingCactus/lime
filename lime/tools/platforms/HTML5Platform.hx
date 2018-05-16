@@ -1,7 +1,6 @@
 package lime.tools.platforms;
 
 import lime.tools.helpers.PngCompressionHelper;
-import lime.project.PngCompression;
 import lime.tools.helpers.SwfSpritesheetHelper;
 import haxe.io.Path;
 import haxe.Template;
@@ -149,10 +148,7 @@ class HTML5Platform extends PlatformTarget {
 
 
 		//start spritesheet generation before copy of assets from Assets to Export folder
-		if (Sys.getEnv("swfSpritesheet") == "true")
-		{
-			SwfSpritesheetHelper.createSpritesheet(project);
-		}
+		SwfSpritesheetHelper.createSpritesheet(project);
 
 		
 		for (asset in project.assets) {
@@ -250,7 +246,6 @@ class HTML5Platform extends PlatformTarget {
 			}
 			
 		}
-
 
 
 		PngCompressionHelper.compressImages(project, destination);

@@ -219,6 +219,8 @@ class HXProject {
 		samplePaths = new Array <String> ();
 		splashScreens = new Array <SplashScreen> ();
 		targetHandlers = new Map <String, String> ();
+		swfSpritesheet = new SwfSpritesheet();
+		pngCompression = new PngCompression();
 
 	}
 	
@@ -232,6 +234,7 @@ class HXProject {
 		project.assets = assets.copy ();
 		project.swfSpritesheet = swfSpritesheet.clone ();
 		project.pngCompression = pngCompression.clone ();
+
 
 		for (i in 0...assets.length) {
 			
@@ -916,7 +919,7 @@ class HXProject {
 			
 		}
 
-		context.swfLiteSpritesheet = swfSpritesheet;
+		context.swfSpritesheet = swfSpritesheet;
 
 		context.assets = new Array <Dynamic> ();
 		var fontAssets = new Array <Dynamic> ();

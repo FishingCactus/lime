@@ -20,7 +20,7 @@ class PngCompressionHelper {
 		pngCompression = project.pngCompression;
 		baseDir = Sys.getCwd();
 
-		checkIfImagePathesValid(exportBaseDir);
+		checkIfImagePathsValid(exportBaseDir);
 
 		for (asset in project.assets) {
 
@@ -37,7 +37,7 @@ class PngCompressionHelper {
 		}
 	}
 
-	private static function checkIfImagePathesValid(exportBaseDir:String):Void {
+	private static function checkIfImagePathsValid(exportBaseDir:String):Void {
 		var fullExportDir:String = PathHelper.combine (baseDir, exportBaseDir);
 		for (imagePath in pngCompression.imagePathList) {
 			var path:String = PathHelper.combine (fullExportDir, imagePath);
@@ -52,7 +52,7 @@ class PngCompressionHelper {
 	private static function compressImage(targetPath:String):Void
 	{
 		var fileName:String = getPlatformFileName();
-		var toolsPath:String = PathHelper.combine(pngCompression.toolsDir, "pngquant-mac");
+		var toolsPath:String = PathHelper.combine(pngCompression.toolsDir, fileName);
 		var argList:Array<String> = [];
 		argList.push(targetPath);
 		argList.push("--output");

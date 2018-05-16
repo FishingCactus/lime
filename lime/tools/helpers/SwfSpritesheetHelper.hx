@@ -52,15 +52,10 @@ class SwfSpritesheetHelper {
 		tempBaseDir = PathHelper.combine(PathHelper.combine(baseDir, ".temp"), "swfSpritesheet");
 		tempBuildDir = PathHelper.combine(tempBaseDir, "build");
 		pathToCacheFile = PathHelper.combine(tempBaseDir, "atlasBuildCache.json");
-		atlasBuildCache = readCacheFile();
+		atlasBuildCache = readCacheFile(pathToCacheFile);
 
 		// delete temp build directory
 		prepareTempDirectories();
-		// copy packFile into temp directory
-		copyPackFileToTempDirectory();
-		// parse pack.json for setting properties in swfSpritesheet
-		parsePackJson();
-
 
 		var executionCommand:ExecutionCommand = getExecutionCommand();
 		LogHelper.info("[SwfSpritesheet] execution command is: --> " + Std.string(executionCommand));
@@ -77,7 +72,7 @@ class SwfSpritesheetHelper {
 		}
 	}
 
-	private static function readCacheFile():AtlasBuildCache {
+	public static function readCacheFile(pathToCacheFile:String):AtlasBuildCache {
 		var atlasBuildCache:AtlasBuildCache;
 		if (FileSystem.exists(pathToCacheFile)) {
 			var value = File.getContent(pathToCacheFile);
@@ -131,6 +126,10 @@ class SwfSpritesheetHelper {
 	}
 
 	private static function executeBuildCommand():Void {
+		// copy packFile into temp directory
+		copyPackFileToTempDirectory();
+		// parse pack.json for setting properties in swfSpritesheet
+		parsePackJson();
 		// assets marked for spritesheet will be copied to temp directory and removed from assets list
 		moveAssetsToTempDirectory();
 		// delete existing target files and remove assets from assets list

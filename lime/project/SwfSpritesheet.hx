@@ -13,37 +13,36 @@ class ExcludeItem {
 
 
 class SwfSpritesheet {
-	
-	
+
 	public var fileName:String;
 	public var targetDir:String;
 	public var packConfigDir:String;
 	public var toolsDir:String;
 	public var enabled:Bool;
-	/** will be parsed and set from pack.json, default is "png" */
-	public var outputFormat:String;
+	public var outputFormat:String; //will be parsed and set from pack.json
 	public var excludeList:List<ExcludeItem>;
 
-
-
-
-	public function new (fileName:String, targetDir:String, packConfigDir:String, toolsDir:String, enabled:Bool, excludeList:List<ExcludeItem>) {
+	public function new () {
 		
-		this.fileName = fileName;
-		this.targetDir = targetDir;
-		this.packConfigDir = packConfigDir;
-		this.toolsDir = toolsDir;
-		this.enabled = enabled;
-		this.outputFormat = "png";
-		this.excludeList = excludeList;
+		fileName = "swfSpritesheet";
+		enabled = false;
+		outputFormat = "png";
+		excludeList = new List<ExcludeItem>();
 
 	}
 
 	public function clone ():SwfSpritesheet {
 
-		var swfSpritesheet = new SwfSpritesheet (fileName, targetDir, packConfigDir, toolsDir, enabled, excludeList);
-		return swfSpritesheet;
+		var swfSpritesheet = new SwfSpritesheet ();
+		swfSpritesheet.fileName = fileName;
+		swfSpritesheet.targetDir = targetDir;
+		swfSpritesheet.packConfigDir = packConfigDir;
+		swfSpritesheet.toolsDir = toolsDir;
+		swfSpritesheet.enabled = enabled;
+		swfSpritesheet.outputFormat = outputFormat;
+		swfSpritesheet.excludeList = excludeList;
 
+		return swfSpritesheet;
 	}
 
 	

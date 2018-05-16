@@ -7,16 +7,19 @@ class PngCompression {
 	public var enabled:Bool;
 
 
-	public function new (imagePathList:Array<String>, toolsDir:String, enabled:Bool) {
+	public function new () {
 
-		this.imagePathList = imagePathList;
-		this.toolsDir = toolsDir;
-		this.enabled = enabled;
-
+		enabled = false;
+		imagePathList = new Array<String>();
 	}
 
 	public function clone ():PngCompression {
-		var pngCompression = new PngCompression (imagePathList, toolsDir, enabled);
+
+		var pngCompression = new PngCompression ();
+		pngCompression.enabled = enabled;
+		pngCompression.toolsDir = toolsDir;
+		pngCompression.imagePathList = imagePathList;
+
 		return pngCompression;
 	}
 
