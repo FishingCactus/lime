@@ -25,6 +25,7 @@ class Asset {
 	public var resourceName:String;
 	public var sourcePath:String;
 	public var targetPath:String;
+	public var markedForSpritesheet:Null<Bool>;
 	public var type:AssetType;
 	
 	
@@ -138,7 +139,8 @@ class Asset {
 		asset.sourcePath = sourcePath;
 		asset.targetPath = targetPath;
 		asset.type = type;
-		
+		asset.markedForSpritesheet = markedForSpritesheet;
+
 		//ObjectHelper.copyFields (this, asset);
 		
 		return asset;

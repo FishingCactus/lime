@@ -1,6 +1,10 @@
 package lime.project;
 
-
+import lime.project.SwfSpritesheet.ExcludeItem;
+import haxe.Json;
+import lime.tools.helpers.SwfSpritesheetHelper.AtlasBuildCache;
+import lime.tools.helpers.SwfSpritesheetHelper;
+import Std;
 import haxe.io.Path;
 import haxe.xml.Fast;
 import lime.tools.helpers.ArrayHelper;
@@ -16,7 +20,6 @@ import lime.project.Haxelib;
 import lime.project.HXProject;
 import sys.io.File;
 import sys.FileSystem;
-
 
 class ProjectXMLParser extends HXProject {
 
@@ -686,6 +689,120 @@ class ProjectXMLParser extends HXProject {
 	}
 
 
+	private function parseSwfSpritesheetElement (element:Fast, basePath:String = "", isTemplate:Bool = false):Void {
+
+		var pathToLime:String = PathHelper.getHaxelib(new Haxelib("lime"));
+		swfSpritesheet.toolsDir = getDir(pathToLime, "tools/swfSpritesheet/libs");
+
+		if (element.has.fileName) {
+			swfSpritesheet.fileName = element.att.fileName;
+		} else {
+			LogHelper.info('[SwfSpritesheet] --> You did not specify the attribute fileName of element <swfSpritesheet/> --> default name: "${swfSpritesheet.fileName}" will be used');
+		}
+
+		if (element.has.targetDir) {
+			swfSpritesheet.targetDir = PathHelper.combine (basePath, substitute (element.att.targetDir));
+		} else {
+			LogHelper.error("[SwfSpritesheet] --> You have to specify the attribute 'targetDir' of element <swfSpritesheet/>" );
+		}
+
+		if (element.has.packConfigDir) {
+			swfSpritesheet.packConfigDir = getDir(basePath, substitute (element.att.packConfigDir));
+		} else {
+			swfSpritesheet.packConfigDir = getDir(pathToLime, "tools/swfSpritesheet/config");
+		}
+
+		if (element.has.enabled) {
+			swfSpritesheet.enabled = parseBool(element.att.enabled);
+		} else {
+			swfSpritesheet.enabled = true; // default is true if parameter has not been set
+		}
+
+		for (childElement in element.elements) {
+			var isValid = isValidElement (childElement, "");
+			if (isValid) {
+				if(childElement.name == "exclude")
+				{
+					if (childElement.has.path) {
+						var path:String = substitute(childElement.att.path);
+						swfSpritesheet.excludeList.add(new ExcludeItem(path));
+					}
+				}
+			}
+		}
+
+		LogHelper.info("[SwfSpritesheet] --> exclude list: " + swfSpritesheet.excludeList.toString() );
+		Sys.putEnv ("swfSpritesheet", "true");
+
+
+		if (hasEnabledFlagChanged()) {
+			if (!targetFlags.exists("clean")) {
+				targetFlags.set("clean", "true");
+				LogHelper.info("[SwfSpritesheet] --> added 'clean' to targetFlags to trigger build" );
+			}
+		}
+
+
+	}
+
+	private function getDir(baseDir:String, relativeDir:String):String {
+		var path:String = PathHelper.combine (baseDir, relativeDir);
+		if (!FileSystem.exists(path)) {
+			LogHelper.error("[SwfSpritesheet] --> the following path does not exists: " + path);
+		}
+		return path;
+	}
+
+	private function hasEnabledFlagChanged():Bool {
+		var baseDir:String = Sys.getCwd();
+		var tempBaseDir:String = PathHelper.combine(PathHelper.combine(baseDir, ".temp"), "swfSpritesheet");
+		var pathToCacheFile:String = PathHelper.combine(tempBaseDir, "atlasBuildCache.json");
+		var atlasBuildCache:AtlasBuildCache = SwfSpritesheetHelper.readCacheFile(pathToCacheFile);
+
+		return (atlasBuildCache.enabled != swfSpritesheet.enabled);
+	}
+
+
+	private function parsePNGCompressionElement (element:Fast, basePath:String = "", isTemplate:Bool = false):Void {
+
+		var pathToLime:String = PathHelper.getHaxelib(new Haxelib("lime"));
+		pngCompression.toolsDir = getDir(pathToLime, "tools/pngCompression/libs");
+
+		if (element.has.enabled) {
+			pngCompression.enabled = parseBool(element.att.enabled);
+		} else {
+			pngCompression.enabled = true; //default is true if parameter has not been set
+		}
+
+		if (pngCompression.enabled) {
+
+			for (childElement in element.elements) {
+				var isValid = isValidElement (childElement, "");
+				if (isValid) {
+
+					if(childElement.name == "image")
+					{
+						if (childElement.has.path) {
+							var enabled:Bool = true;
+							if (childElement.has.enabled) {
+								enabled = parseBool(childElement.att.enabled);
+							}
+
+							if (enabled) {
+								var path:String = substitute(childElement.att.path);
+								pngCompression.imagePathList.push(path);
+								LogHelper.info("[PNGCompression] --> image: " + path);
+							}
+
+						}
+					}
+				}
+			}
+		}
+	}
+
+
+
 	private function parseBool (attribute:String):Bool {
 
 		return substitute (attribute) == "true";
@@ -1211,6 +1328,14 @@ class ProjectXMLParser extends HXProject {
 					case "assets":
 
 						parseAssetsElement (element, extensionPath);
+
+					case "swfSpritesheet":
+
+						parseSwfSpritesheetElement (element, extensionPath);
+
+					case "pngCompression":
+
+						parsePNGCompressionElement (element, extensionPath);
 
 					case "library", "swf":
 

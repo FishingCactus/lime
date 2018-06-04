@@ -34,6 +34,8 @@ class HXProject {
 	public var app:ApplicationData;
 	public var architectures:Array <Architecture>;
 	public var assets:Array <Asset>;
+	public var swfSpritesheet:SwfSpritesheet;
+	public var pngCompression:PngCompression;
 	public var certificate:Keystore;
 	public var command:String;
 	public var config:ConfigData;
@@ -217,7 +219,9 @@ class HXProject {
 		samplePaths = new Array <String> ();
 		splashScreens = new Array <SplashScreen> ();
 		targetHandlers = new Map <String, String> ();
-		
+		swfSpritesheet = new SwfSpritesheet();
+		pngCompression = new PngCompression();
+
 	}
 	
 	
@@ -228,7 +232,10 @@ class HXProject {
 		ObjectHelper.copyFields (app, project.app);
 		project.architectures = architectures.copy ();
 		project.assets = assets.copy ();
-		
+		project.swfSpritesheet = swfSpritesheet.clone ();
+		project.pngCompression = pngCompression.clone ();
+
+
 		for (i in 0...assets.length) {
 			
 			project.assets[i] = assets[i].clone ();
@@ -911,7 +918,9 @@ class HXProject {
 			}
 			
 		}
-		
+
+		context.swfSpritesheet = swfSpritesheet;
+
 		context.assets = new Array <Dynamic> ();
 		var fontAssets = new Array <Dynamic> ();
 		for (asset in assets) {

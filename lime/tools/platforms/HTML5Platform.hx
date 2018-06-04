@@ -1,6 +1,7 @@
 package lime.tools.platforms;
 
-
+import lime.tools.helpers.PngCompressionHelper;
+import lime.tools.helpers.SwfSpritesheetHelper;
 import haxe.io.Path;
 import haxe.Template;
 import lime.tools.helpers.AssetHelper;
@@ -144,6 +145,11 @@ class HTML5Platform extends PlatformTarget {
 			}
 			
 		}
+
+
+		//start spritesheet generation before copy of assets from Assets to Export folder
+		SwfSpritesheetHelper.createSpritesheet(project);
+
 		
 		for (asset in project.assets) {
 			
@@ -206,18 +212,17 @@ class HTML5Platform extends PlatformTarget {
 			}
 			
 		}
-		
+
 		for (asset in project.assets) {
-			
+
 			var path = PathHelper.combine (destination, asset.targetPath);
-			
+
 			if (asset.type != AssetType.TEMPLATE) {
-				
+
 				if (asset.type != AssetType.FONT) {
-					
 					PathHelper.mkdir (Path.directory (path));
 					FileHelper.copyAssetIfNewer (asset, path);
-					
+
 				} else if (useWebfonts) {
 					
 					PathHelper.mkdir (Path.directory (path));
@@ -227,9 +232,7 @@ class HTML5Platform extends PlatformTarget {
 					for (extension in [ ext, ".eot", ".woff", ".svg" ]) {
 						
 						if (FileSystem.exists (source + extension)) {
-							
 							FileHelper.copyIfNewer (source + extension, path + extension);
-							
 						} else {
 							
 							LogHelper.warn ("Could not find generated font file \"" + source + extension + "\"");
@@ -243,6 +246,11 @@ class HTML5Platform extends PlatformTarget {
 			}
 			
 		}
+
+
+		PngCompressionHelper.compressImages(project, destination);
+
+
 		
 		FileHelper.recursiveCopyTemplate (project.templatePaths, "html5/template", destination, context);
 		
@@ -272,12 +280,11 @@ class HTML5Platform extends PlatformTarget {
 			}
 			
 		}
-		
+
 		AssetHelper.createManifest (project, PathHelper.combine (destination, "manifest"));
-		
+
 	}
-	
-	
+
 	@ignore public override function install ():Void {}
 	@ignore public override function rebuild ():Void {}
 	@ignore public override function trace ():Void {}
