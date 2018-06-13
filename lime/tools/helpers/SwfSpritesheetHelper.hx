@@ -22,6 +22,7 @@ typedef AtlasBuildCache = {
 }
 
 enum ExecutionCommand {
+	RESET;
 	BUILD;
 	DISABLE;
 	IGNORE;
@@ -38,6 +39,7 @@ class SwfSpritesheetHelper {
 	private static var haxedefs:Map <String, Dynamic>;
 	private static var baseDir:String;
 	private static var tempBaseDir:String;
+	private static var tempSwfSpritesheetDir:String;
 	private static var tempBuildDir:String;
 	private static var pathToCacheFile:String;
 	private static var atlasBuildCache:AtlasBuildCache;
@@ -49,19 +51,19 @@ class SwfSpritesheetHelper {
 		swfSpritesheet = project.swfSpritesheet;
 		haxedefs = project.haxedefs;
 		baseDir = Sys.getCwd();
-		tempBaseDir = PathHelper.combine(PathHelper.combine(baseDir, ".temp"), "swfSpritesheet");
-		tempBuildDir = PathHelper.combine(tempBaseDir, "build");
-		pathToCacheFile = PathHelper.combine(tempBaseDir, "atlasBuildCache.json");
+		tempBaseDir = PathHelper.combine(baseDir, ".temp");
+		tempSwfSpritesheetDir = PathHelper.combine(tempBaseDir, "swfSpritesheet");
+		tempBuildDir = PathHelper.combine(tempSwfSpritesheetDir, "build");
+		pathToCacheFile = PathHelper.combine(tempSwfSpritesheetDir, "atlasBuildCache.json");
 		atlasBuildCache = readCacheFile(pathToCacheFile);
-
-		// delete temp build directory
-		prepareTempDirectories();
 
 		var executionCommand:ExecutionCommand = getExecutionCommand();
 		LogHelper.info("[SwfSpritesheet] execution command is: --> " + Std.string(executionCommand));
 		LogHelper.info("[SwfSpritesheet] preventSwfTextureBuild --> " + Std.string(haxedefs.exists("preventSwfTextureBuild")));
 
 		switch(executionCommand) {
+			case ExecutionCommand.RESET:
+				executeResetCommand();
 			case ExecutionCommand.BUILD:
 				executeBuildCommand();
 			case ExecutionCommand.DISABLE:
@@ -84,10 +86,17 @@ class SwfSpritesheetHelper {
 		return atlasBuildCache;
 	}
 
+	private static function removeTempDirectories():Void
+	{
+		if (FileSystem.exists(tempBaseDir)) {
+			PathHelper.removeDirectory(tempBaseDir);
+		}
+	}
+
 	private static function prepareTempDirectories():Void
 	{
-		if (!FileSystem.exists(tempBaseDir)) {
-			PathHelper.mkdir(tempBaseDir);
+		if (!FileSystem.exists(tempSwfSpritesheetDir)) {
+			PathHelper.mkdir(tempSwfSpritesheetDir);
 		}
 
 		PathHelper.removeDirectory(tempBuildDir);
@@ -117,7 +126,9 @@ class SwfSpritesheetHelper {
 
 	private static function getExecutionCommand():ExecutionCommand {
 		var executionCommand:ExecutionCommand = ExecutionCommand.BUILD;
-		if (!swfSpritesheet.enabled) {
+		if (Sys.getEnv("swfSpritesheet") != "true") {
+			executionCommand = ExecutionCommand.RESET; // no swfSpritesheet tag found in project.xml
+		} else if (!swfSpritesheet.enabled) {
 			executionCommand = ExecutionCommand.DISABLE;
 		} else if (haxedefs.exists("preventSwfTextureBuild") && getNumberOfFilesInTargetDirectory() != 0) {
 			executionCommand = ExecutionCommand.IGNORE;
@@ -125,7 +136,14 @@ class SwfSpritesheetHelper {
 		return executionCommand;
 	}
 
+	private static function executeResetCommand():Void {
+		// delete all temp files
+		removeTempDirectories();
+	}
+
 	private static function executeBuildCommand():Void {
+		// delete temp build directory
+		prepareTempDirectories();
 		// copy packFile into temp directory
 		copyPackFileToTempDirectory();
 		// parse pack.json for setting properties in swfSpritesheet
@@ -146,6 +164,8 @@ class SwfSpritesheetHelper {
 	}
 
 	private static function executeDisableCommand():Void {
+		// delete temp build directory
+		prepareTempDirectories();
 		// delete existing target files and remove assets from assets list
 		deleteExistingTextureFiles();
 		// save current enabled flag rebuild file validation
@@ -153,6 +173,8 @@ class SwfSpritesheetHelper {
 	}
 
 	private static function executeIgnoreCommand():Void {
+		// delete temp build directory
+		prepareTempDirectories();
 		// assets marked for spritesheet will be copied to temp directory and removed from assets list
 		moveAssetsToTempDirectory();
 
