@@ -67,8 +67,8 @@ class HTTPRequest {
 				promise.complete (response);
 			} else {
 				
-				promise.error (request.status);
-				
+				promise.error (request.responseURL);
+
 			}
 			
 		};

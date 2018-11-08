@@ -300,8 +300,8 @@ class Preloader #if flash extends Sprite #end {
 
 	}
 
-	private function loader_onError (event):Void {
-		onError.dispatch( "unknown" );
+	private function loader_onError (responseURL):Void {
+		onError.dispatch(responseURL);
 	}
 	#end
 	
