@@ -232,6 +232,7 @@ class HTML5Window {
 			element.addEventListener ("touchmove", handleTouchEvent, true);
 			element.addEventListener ("touchend", handleTouchEvent, true);
 
+
 			element.addEventListener ("gamepadconnected", handleGamepadEvent, true);
 			element.addEventListener ("gamepaddisconnected", handleGamepadEvent, true);
 
@@ -434,18 +435,26 @@ class HTML5Window {
 
 			var x = 0.0;
 			var y = 0.0;
-
+            var scaleX:Float = 1;
+            var scaleY:Float = 1;
+            if (this.parent.stage != null)
+            {
+                scaleX = this.parent.stage.scaleX;
+                scaleY = this.parent.stage.scaleY;
+            }
 			if (rect != null) {
 
-				x = (data.clientX - rect.left) * (windowWidth / rect.width);
-				y = (data.clientY - rect.top) * (windowHeight / rect.height);
+				x = (data.clientX - rect.left) * (windowWidth / rect.width) * scaleX;
+				y = (data.clientY - rect.top) * (windowHeight / rect.height) * scaleY;
 
 			} else {
 
-				x = data.clientX;
-				y = data.clientY;
+				x = data.clientX * scaleX;
+				y = data.clientY * scaleY;
 
 			}
+
+
 
 			switch (event.type) {
 
@@ -623,7 +632,6 @@ class HTML5Window {
 				textInput.autocomplete = "off";
 
 				// TODO: Position for mobile browsers better
-
 
 
 				if (~/(iPad|iPhone|iPod).*OS 8_/gi.match (Browser.window.navigator.userAgent)) {
